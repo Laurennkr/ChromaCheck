@@ -10,7 +10,7 @@ Pantalla `/lotes/[id]`. API: `PATCH /api/lotes/[id]/captura` con `{ "modo": "Rec
 
 ## Comportamiento
 
-1. En la pantalla de un lote Activo, con muestra y con el sensor libre, la acción principal es "Iniciar recolección", debajo del color de la muestra y del aviso "✓ Muestra patrón guardada" (F3).
+1. En la pantalla de un lote Activo, con muestra y con el sensor libre, la acción principal es "Iniciar recolección", arriba, debajo del título del lote. El color de la muestra está más abajo, en "Comparación de colores", con el aviso "✓ Muestra patrón guardada" debajo (F3).
 2. Al pulsarlo, el lote pasa a modo `Recoleccion` y se abre la pantalla completa: "Recolección del lote <código>", "● Recolectando tarros…" e "Pase los tarros uno por uno frente al sensor".
 3. Por cada tarro que llega, la pantalla completa muestra lado a lado la muestra patrón y el último tarro, el dictamen en grande ("✓ Aprobado" o "✕ No aprobado"), la diferencia de color en ΔE y cuántos tarros se han revisado y cuántos no se aprobaron.
 4. "Terminar recolección", "✕ Cerrar" o Esc devuelven el lote a `Inactivo`, cierran la pantalla completa y el foco vuelve al botón "Iniciar recolección".

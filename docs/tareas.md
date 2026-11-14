@@ -33,8 +33,8 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 - [ ] 3.3 F3 · Estado "Muestra patrón guardada" con el color y "Continuar"
 - [ ] 3.4 F4 · Estado "Recolectando tarros": muestra patrón y último tarro, dictamen de 60 px, ΔE y contador
 - [ ] 3.5 F5 · `POST /api/lotes/[id]/reanudar`: regla en `lib/modulos/lotes/reglas.ts`, servicio, repositorio (lote a `Activo` y `Recoleccion` en la misma sentencia) y pruebas; actualizar `contratos/api.md`
-- [ ] 3.6 F5 · Estados de alerta amarilla (dorado) y lote pausado (rojo): 5 segundos sin botones y después "Reanudar revisión" y "Entendido"
-- [ ] 3.7 F5 · "Reanudar revisión" como acción principal en la pantalla de un lote pausado
+- [ ] 3.6 F5 · Estados de alerta amarilla (dorado) y lote pausado (rojo): 5 segundos sin botones y después "Reanudar recolección" y "Entendido"
+- [ ] 3.7 F5 · "Reanudar recolección" como acción principal en la pantalla de un lote pausado
 - [x] 3.8 Reemplazar `ControlCaptura` por el botón principal + `PantallaCaptura` en `app/lotes/[id]/page.tsx`; ocultar el encabezado mientras está abierta
 - [ ] 3.9 Actualizar los textos de los botones en `README.md` y pedir a Michael que los actualice en `puente-serial/README.md`
 - [ ] 3.10 Prueba rápida con dos personas del taller: que tomen la muestra y revisen 3 tarros sin ayuda (ensayo de ACQ-01); anotar lo que no entendieron

@@ -218,20 +218,22 @@ Al pulsar "Agregar muestra", el lote pasa a modo `Muestra`.
 Cuando el puente envía la lectura de la muestra:
 
 - La pantalla completa se cierra sola.
-- La pantalla del lote muestra el color de la muestra (cuadro sin borde, hex debajo) y el aviso "✓ Muestra patrón guardada".
-- La acción principal pasa a ser "Iniciar recolección", en el mismo lugar.
+- La acción principal pasa a ser "Iniciar recolección", en el mismo lugar: arriba, debajo del título del lote.
+- El color de la muestra (cuadro sin borde, hex debajo) se ve una sola vez, en "Comparación de colores", con el aviso "✓ Muestra patrón guardada" debajo y el último tarro al lado.
 
 ```text
-  Muestra patrón
-  ┌──────────────┐
-  │    color     │
-  └──────────────┘
-  #E35336
-  ✓ Muestra patrón guardada
-
   ┌───────────────────────────┐
   │    Iniciar recolección    │  (72 px)
   └───────────────────────────┘
+
+  Comparación de colores
+  ───────────────────────────────────────────────
+  Muestra patrón              Último tarro
+  ┌──────────────────┐        ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
+  │      color       │        ╎                  ╎
+  └──────────────────┘        └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+  #E35336                     Todavía no hay tarros revisados
+  ✓ Muestra patrón guardada
 ```
 
 ### Recolección
