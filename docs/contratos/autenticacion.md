@@ -17,9 +17,10 @@ La contraseña nunca se guarda en texto plano: se guarda el hash `sal:hash` gene
 
 ## Variables de entorno (`.env.local`)
 
-| Variable      | Uso                                                          |
-| ------------- | ------------------------------------------------------------ |
-| `AUTH_SECRET` | Clave para firmar la cookie de sesión. Mínimo 32 caracteres. |
+| Variable            | Uso                                                                     |
+| ------------------- | ----------------------------------------------------------------------- |
+| `AUTH_SECRET`       | Clave para firmar la cookie de sesión. Mínimo 32 caracteres.            |
+| `CLAVE_DISPOSITIVO` | Clave del dispositivo que envía el puente serial. Mínimo 32 caracteres. |
 
 ## Rutas de la API
 
@@ -42,7 +43,22 @@ Los errores internos responden `500` con `"Error interno del servidor"`, igual q
 
 ## Protección de rutas
 
-`proxy.ts` revisa la cookie `sesion` en cada página. Sin sesión válida redirige a `/login`. Las rutas `/api/**` no pasan por el proxy: el script de Python que envía las lecturas del sensor (historia 06) no inicia sesión. Los endpoints de escritura que usa solo la web verifican la sesión por su cuenta con `verificarTokenSesion` y responden `401` sin ella; hoy es el caso de `POST /api/lotes` y `PATCH /api/lotes/[id]/captura`.
+`proxy.ts` revisa cada página y cada ruta de la API:
+
+- Páginas: sin sesión válida redirige a `/login`; con sesión, `/login` redirige al inicio.
+- `/api/auth/*`: pasa sin revisión, porque es por donde se inicia y se cierra la sesión.
+- El resto de `/api`: pasa con la cookie `sesion` válida o con la clave del dispositivo. Si no, responde `401` con `"Inicie sesión o envíe la clave del dispositivo"`. El acceso de cada ruta está en [api.md](api.md#acceso).
+
+Los endpoints de escritura que usa solo la web verifican además la sesión por su cuenta con `verificarTokenSesion` y responden `401` sin ella, aunque traigan la clave del dispositivo; hoy es el caso de `POST /api/lotes` y `PATCH /api/lotes/[id]/captura`.
+
+## Clave del dispositivo
+
+El puente serial (historia 06) no inicia sesión: se identifica con una clave compartida que envía en el encabezado `x-clave-dispositivo`. El servidor la compara con la variable `CLAVE_DISPOSITIVO` en `lib/modulos/auth/claveDispositivo.ts`:
+
+- **Falla cerrada.** Si `CLAVE_DISPOSITIVO` falta o tiene menos de 32 caracteres, ninguna clave es válida: sin clave configurada no entra nadie por esta vía, solo con sesión.
+- **Comparación en tiempo constante.** Si las longitudes difieren, la clave es inválida. Si son iguales, se recorren siempre todos los caracteres acumulando el XOR de sus códigos, así el tiempo de respuesta no revela cuántos caracteres coinciden.
+
+La misma clave se configura en Vercel y en el equipo del taller donde corre el puente (ver [despliegue.md](../operacion/despliegue.md)).
 
 ## Crear un usuario
 

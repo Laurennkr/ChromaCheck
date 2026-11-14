@@ -9,6 +9,25 @@ Todas las respuestas son JSON con el mismo formato:
 
 Los errores 500 responden siempre `"Error interno del servidor"`; el detalle queda solo en el registro del servidor.
 
+## Acceso
+
+`proxy.ts` revisa cada petición a `/api` antes de que llegue a la ruta. La web entra con la cookie `sesion` y el puente serial con la clave del dispositivo, que envía en el encabezado `x-clave-dispositivo` (ver [autenticacion.md](autenticacion.md#clave-del-dispositivo)).
+
+| Ruta                                                | Acceso                         |
+| --------------------------------------------------- | ------------------------------ |
+| `/api/auth/*` (login y logout)                      | Libre                          |
+| `POST /api/tarros` y `GET /api/captura/activa`      | Sesión o clave del dispositivo |
+| `GET /api/lotes` y `GET /api/tarros`                | Sesión o clave del dispositivo |
+| `POST /api/lotes` y `PATCH /api/lotes/[id]/captura` | Sesión                         |
+
+Sin sesión válida ni clave correcta, cualquier ruta fuera de `/api/auth/*` responde `401`:
+
+```json
+{ "exito": false, "error": "Inicie sesión o envíe la clave del dispositivo" }
+```
+
+`POST /api/lotes` y `PATCH /api/lotes/[id]/captura` además exigen la sesión en su propia ruta: con la clave del dispositivo y sin sesión responden `401`.
+
 ## Lotes
 
 ### `GET /api/lotes`
@@ -88,7 +107,7 @@ Las alertas y las lecturas anteriores se conservan. Si la desviación sigue en a
 
 ### `GET /api/captura/activa`
 
-Indica qué lote está capturando. Está abierta (sin sesión) porque la consulta el puente serial.
+Indica qué lote está capturando. Acepta la sesión o la clave del dispositivo, porque la consulta el puente serial.
 
 ```json
 { "exito": true, "datos": { "loteId": 1, "codigo": "#001_Terracota", "modo": "Recoleccion" } }
@@ -103,7 +122,7 @@ Indica qué lote está capturando. Está abierta (sin sesión) porque la consult
 
 ### Contrato con el puente serial
 
-El puente lo sigue cuando se ejecuta con `--automatico` (ver `puente-serial/README.md`). Por cada `LECTURA;R;G;B` que recibe del Arduino:
+El puente lo sigue cuando se ejecuta con `--automatico` (ver `puente-serial/README.md`). Envía cada petición con el encabezado `x-clave-dispositivo`; si la API responde `401`, avisa que la clave fue rechazada y sigue leyendo. Por cada `LECTURA;R;G;B` que recibe del Arduino:
 
 1. Consultar `GET /api/captura/activa`.
 2. Si `datos` es `null`, descartar la lectura sin enviarla.
@@ -124,7 +143,7 @@ Lista todos los tarros de un lote (muestra incluida), del más antiguo al más r
 
 ### `POST /api/tarros`
 
-Registra el tarro muestra de un lote o una lectura del sensor. Sigue abierta (sin sesión) para el puente serial, pero depende del modo de captura del lote (ver [Captura del sensor](#captura-del-sensor)):
+Registra el tarro muestra de un lote o una lectura del sensor. Acepta la clave del dispositivo, porque la usa el puente serial, y depende del modo de captura del lote (ver [Captura del sensor](#captura-del-sensor)):
 
 - La muestra solo se acepta si el lote está en modo `Muestra`. Al registrarla, el lote vuelve a `Inactivo` en la misma transacción.
 - Las lecturas solo se aceptan si el lote está en modo `Recoleccion`.
@@ -157,4 +176,4 @@ Lectura del sensor (calcula deltaE frente a la muestra y genera alertas):
 
 ## Autenticación
 
-El login (`POST /api/auth/login`, `POST /api/auth/logout`) y la protección de páginas con `proxy.ts` están documentados en `docs/contratos/autenticacion.md`.
+El login (`POST /api/auth/login`, `POST /api/auth/logout`) y la protección de las páginas y de la API con `proxy.ts` están documentados en `docs/contratos/autenticacion.md`.
