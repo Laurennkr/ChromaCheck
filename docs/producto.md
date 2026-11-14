@@ -16,7 +16,7 @@ Que el operador, sin ayuda, abra un lote, tome la muestra patrón y revise sus t
 
 ## Cómo funciona
 
-Para el operador: **Abrir lote → Tomar muestra patrón → Revisar tarros**. El resultado de cada paso aparece en una pantalla completa, centrada y con letra grande.
+Para el operador: **Abrir lote → Agregar muestra → Iniciar recolección**. El resultado de cada paso aparece en una pantalla completa, centrada y con letra grande.
 
 Por dentro: el Arduino con el sensor TCS3200 lee el color de cada tarro, el puente serial lo envía a la API, la API calcula la diferencia de color (ΔE, fórmula CIE76) frente a la muestra patrón del lote, da el dictamen y genera las alertas. El detalle está en [arquitectura.md](arquitectura.md).
 
@@ -25,7 +25,7 @@ Por dentro: el Arduino con el sensor TCS3200 lee el color de cada tarro, el puen
 1. **Entrar con la cuenta del taller**: [F1 · Iniciar sesión](specs/F1-iniciar-sesion.md)
 2. **Abrir el lote del color**: [F2 · Ver y agregar lotes](specs/F2-lotes.md)
 3. **Tomar la muestra patrón**: [F3 · Tomar la muestra patrón](specs/F3-tomar-muestra-patron.md)
-4. **Revisar tarros con dictamen y alertas**: [F4 · Revisar tarros](specs/F4-revisar-tarros.md) y [F5 · Alertas y pausa del lote](specs/F5-alertas-y-pausa.md)
+4. **Recolección con dictamen y alertas**: [F4 · Iniciar recolección](specs/F4-revisar-tarros.md) y [F5 · Alertas y pausa del lote](specs/F5-alertas-y-pausa.md)
 5. **Consultar el historial**, como consulta secundaria fuera del flujo principal: [F6 · Historial de tarros](specs/F6-historial.md)
 6. **Elegir fondo claro u oscuro**, desde el encabezado en cualquier pantalla: [F7 · Fondo claro u oscuro](specs/F7-fondo-claro-oscuro.md)
 

@@ -4,7 +4,7 @@
 
 Como operario, quiero consultar todos los tarros revisados con su lote, color, ΔE y dictamen, para comparar el dictamen del sistema con el juicio visual y tener la trazabilidad de cada lote.
 
-Es una consulta secundaria: se abre desde el enlace "Historial" del encabezado y no forma parte del flujo principal (abrir lote → tomar muestra patrón → revisar tarros).
+Es una consulta secundaria: se abre desde el enlace "Historial" del encabezado y no forma parte del flujo principal (abrir lote → agregar muestra → iniciar recolección).
 
 ## Relación
 
