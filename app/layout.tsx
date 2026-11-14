@@ -32,7 +32,11 @@ export default async function PlantillaPrincipal({ children }: LayoutProps<'/'>)
   const tema = leerTema((await cookies()).get(NOMBRE_COOKIE_TEMA)?.value);
 
   return (
-    <html lang="es" data-tema={tema} className={`${inter.variable} ${montserrat.variable} h-full antialiased`}>
+    <html
+      lang="es"
+      data-tema={tema}
+      className={`${inter.variable} ${montserrat.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         {/* Con flex-wrap los controles bajan de línea en una pantalla angosta, sin desplazamiento horizontal */}
         <header className="flex flex-wrap items-center gap-4 border-b-2 border-borde bg-encabezado px-4 py-2 text-texto sm:px-8">

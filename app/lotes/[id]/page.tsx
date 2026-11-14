@@ -91,9 +91,7 @@ async function cargarDatosLote(id: string) {
 function Recuadro({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <section className="overflow-hidden rounded-lg border-2 border-borde bg-superficie">
-      <h2 className="border-b-2 border-borde px-5 py-4 font-titulo text-2xl font-bold">
-        {titulo}
-      </h2>
+      <h2 className="border-b-2 border-borde px-5 py-4 font-titulo text-2xl font-bold">{titulo}</h2>
       {children}
     </section>
   );
