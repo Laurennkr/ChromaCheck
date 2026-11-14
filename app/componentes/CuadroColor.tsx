@@ -14,8 +14,9 @@ const CLASES_TAMANO: Record<TamanoCuadroColor, string> = {
   ancho: 'h-36 w-full',
 };
 
-// Color de la pintura con borde de 2 px y su código hex debajo, nunca encima del color.
-// Es el único color que no viene de la paleta, por eso va en style y no cambia con el tema
+// Color de la pintura sin borde, tal cual, y su código hex debajo, nunca encima del color.
+// Es el único color que no viene de la paleta, por eso va en style y no cambia con el tema.
+// Solo el cuadro vacío ("Sin lectura") lleva línea punteada, porque no es un color de pintura
 export default function CuadroColor({
   hex,
   tamano = 'ancho',
@@ -27,8 +28,8 @@ export default function CuadroColor({
     <div className={tamano === 'ancho' ? 'w-full' : 'w-fit'}>
       <div
         aria-hidden="true"
-        className={`${CLASES_TAMANO[tamano]} rounded-lg border-2 ${
-          tieneColor ? 'border-borde' : 'border-dashed border-borde bg-fondo'
+        className={`${CLASES_TAMANO[tamano]} rounded-lg ${
+          tieneColor ? '' : 'border-2 border-dashed border-borde bg-fondo'
         }`}
         style={tieneColor ? { backgroundColor: hex ?? undefined } : undefined}
       />

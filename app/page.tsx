@@ -60,7 +60,7 @@ function TarjetaLote({ lote }: { lote: LoteConResumen }) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-2xl font-bold break-all">{lote.codigo}</h2>
         {estaPausado ? (
-          <span className="text-lg font-bold text-peligro">
+          <span className="font-titulo text-lg font-bold text-peligro">
             <span aria-hidden="true">⚠ </span>Pausado
           </span>
         ) : (

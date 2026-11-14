@@ -45,7 +45,7 @@ export default async function PaginaHistorial({ searchParams }: PageProps<'/hist
         {/* En pantallas angostas la tabla se desplaza dentro de su recuadro, no la página */}
         <div className="overflow-x-auto rounded-lg border-2 border-borde bg-superficie">
           <table className="w-full text-left text-lg">
-            <thead className="border-b-2 border-borde text-base font-bold">
+            <thead className="border-b-2 border-borde font-titulo text-base font-semibold">
               <tr>
                 <th className="px-5 py-4">Tarro</th>
                 <th className="px-5 py-4">Lote</th>
@@ -148,7 +148,7 @@ function FilaTarro({ tarro }: { tarro: FilaHistorialTarro }) {
       <td className="px-5 py-4">
         <CuadroColor hex={tarro.resultado_hex} tamano="pequeno" />
       </td>
-      <td className="px-5 py-4 font-bold tabular-nums">
+      <td className="px-5 py-4 font-titulo font-bold tabular-nums">
         {formatearDeltaE(tarro.desviacion_delta_e)}
       </td>
       <td className="px-5 py-4">

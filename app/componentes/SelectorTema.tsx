@@ -29,7 +29,7 @@ export default function SelectorTema({ temaInicial }: PropiedadesSelectorTema) {
 
   return (
     <div role="group" aria-labelledby="etiqueta-fondo" className="flex items-center gap-2">
-      <span id="etiqueta-fondo" className="text-lg font-bold">
+      <span id="etiqueta-fondo" className="font-titulo text-lg font-semibold">
         Fondo:
       </span>
       {OPCIONES.map(({ tema, texto }) => {
@@ -42,7 +42,7 @@ export default function SelectorTema({ temaInicial }: PropiedadesSelectorTema) {
             onClick={() => elegirTema(tema)}
             className={
               estaElegido
-                ? `${CLASES_BASE_ENCABEZADO} border-accion bg-accion font-bold text-texto-sobre-accion`
+                ? `${CLASES_BASE_ENCABEZADO} border-accion bg-accion font-semibold text-texto-sobre-accion`
                 : CLASES_ELEMENTO_ENCABEZADO
             }
           >

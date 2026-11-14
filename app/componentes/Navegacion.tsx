@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 // Aspecto de los elementos del encabezado: 56 px de alto, 18 px, sin mayúsculas sostenidas.
-// Los colores van aparte para que un elemento nunca lleve dos clases de color que compitan
+// El peso y los colores van aparte para que un elemento nunca lleve dos clases que compitan
 export const CLASES_BASE_ENCABEZADO =
-  'inline-flex h-14 items-center justify-center rounded-lg border-2 px-4 text-lg transition focus-visible:outline-4 focus-visible:outline-offset-3 focus-visible:outline-accion';
+  'inline-flex h-14 items-center justify-center rounded-lg border-2 px-4 font-titulo text-lg transition focus-visible:outline-4 focus-visible:outline-offset-3 focus-visible:outline-accion';
 
-export const CLASES_ELEMENTO_ENCABEZADO = `${CLASES_BASE_ENCABEZADO} border-borde text-texto hover:border-texto`;
+export const CLASES_ELEMENTO_ENCABEZADO = `${CLASES_BASE_ENCABEZADO} border-borde font-semibold text-texto hover:border-texto`;
 
 const ENLACES = [
   { destino: '/', texto: 'Lotes' },
@@ -35,7 +35,7 @@ export default function Navegacion() {
             key={destino}
             href={destino}
             aria-current={esActual ? 'page' : undefined}
-            // El enlace actual se marca con subrayado de 4 px y negrita, no solo con color
+            // El enlace actual se marca con subrayado de 4 px y Montserrat Bold, no solo con color
             className={
               esActual
                 ? `${CLASES_BASE_ENCABEZADO} border-texto text-texto font-bold underline decoration-4 underline-offset-8`

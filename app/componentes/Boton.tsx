@@ -26,7 +26,7 @@ export function obtenerClasesBoton({
   esGrande = false,
 }: OpcionesClasesBoton) {
   return [
-    'inline-flex items-center justify-center gap-2 rounded-lg px-6 text-lg font-bold transition',
+    'inline-flex items-center justify-center gap-2 rounded-lg px-6 font-titulo text-lg font-semibold transition',
     'focus-visible:outline-4 focus-visible:outline-offset-3 focus-visible:outline-accion',
     'disabled:cursor-not-allowed disabled:opacity-60',
     esGrande ? 'h-18' : 'h-14',
