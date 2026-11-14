@@ -20,7 +20,7 @@ interface LoteConResumen {
 const TEXTOS_MODO_CAPTURA: Record<ModoCaptura, string | null> = {
   Inactivo: null,
   Muestra: 'Esperando muestra patrón',
-  Recoleccion: 'Revisando tarros',
+  Recoleccion: 'Recolectando tarros',
 };
 
 // Pantalla principal: muestra todos los lotes en producción
