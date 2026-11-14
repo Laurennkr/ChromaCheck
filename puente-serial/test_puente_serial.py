@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import os
 import threading
 import unittest
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -16,6 +17,7 @@ from puente_serial import (
     enviar_lectura,
     interpretar_linea,
     leer_argumentos,
+    main,
     procesar_linea,
     procesar_linea_automatica,
     verificar_calibracion,
@@ -81,9 +83,12 @@ class ApiFalsa(BaseHTTPRequestHandler):
     estado_captura = 200
     captura_activa = None
     consultas_captura = 0
+    # Valor del encabezado X-Clave-Dispositivo de cada petición, en orden (None si no vino)
+    claves_recibidas = []
 
     def do_GET(self):
         ApiFalsa.consultas_captura += 1
+        ApiFalsa.claves_recibidas.append(self.headers.get('X-Clave-Dispositivo'))
         estado = ApiFalsa.estado_captura
         cuerpo = json.dumps({'exito': True, 'datos': ApiFalsa.captura_activa}).encode('utf-8')
         if self.path != '/api/captura/activa':
@@ -95,6 +100,7 @@ class ApiFalsa(BaseHTTPRequestHandler):
 
     def do_POST(self):
         largo = int(self.headers['Content-Length'])
+        ApiFalsa.claves_recibidas.append(self.headers.get('X-Clave-Dispositivo'))
         ApiFalsa.cuerpos_recibidos.append((self.path, json.loads(self.rfile.read(largo))))
         self.send_response(ApiFalsa.estado)
         self.send_header('Content-Type', 'application/json')
@@ -146,6 +152,15 @@ class PruebasEnviarLectura(unittest.TestCase):
         with self.assertLogs(level='ERROR'):
             self.assertFalse(enviar_lectura('http://127.0.0.1:9', construir_cuerpo(1, (1, 2, 3))))
 
+    def test_401_avisa_que_la_api_rechazo_la_clave(self):
+        ApiFalsa.estado = 401
+        ApiFalsa.cuerpo_respuesta = (
+            '{"exito": false, "error": "Inicie sesión o envíe la clave del dispositivo"}'.encode())
+        with self.assertLogs(level='ERROR') as registro:
+            self.assertFalse(enviar_lectura(self.url, construir_cuerpo(1, (1, 2, 3))))
+        self.assertIn('La API rechazó la clave del dispositivo: revise CLAVE_DISPOSITIVO',
+                      registro.output[0])
+
     def test_procesar_linea_envia_solo_las_lecturas(self):
         self.assertIsNone(procesar_linea('AVISO;LISTO', 1, self.url))
         self.assertEqual(ApiFalsa.cuerpos_recibidos, [])
@@ -189,9 +204,25 @@ class PruebasModoAutomatico(unittest.TestCase):
         ApiFalsa.estado_captura = 200
         ApiFalsa.captura_activa = None
         ApiFalsa.consultas_captura = 0
+        ApiFalsa.claves_recibidas = []
 
     def poner_captura(self, modo):
         ApiFalsa.captura_activa = {'loteId': 7, 'codigo': '#007_Prueba', 'modo': modo}
+
+    def test_las_dos_peticiones_envian_la_clave_del_dispositivo(self):
+        self.poner_captura('Recoleccion')
+        clave = 'clave-de-prueba-del-dispositivo-con-mas-de-32-caracteres'
+        with mock.patch.dict(os.environ, {'CLAVE_DISPOSITIVO': clave}):
+            self.assertTrue(procesar_linea_automatica('LECTURA;1;2;3', self.url))
+        # Primero GET /api/captura/activa y después POST /api/tarros
+        self.assertEqual(ApiFalsa.claves_recibidas, [clave, clave])
+
+    def test_401_al_consultar_la_captura_avisa_que_la_api_rechazo_la_clave(self):
+        ApiFalsa.estado_captura = 401
+        with self.assertLogs(level='ERROR') as registro:
+            self.assertFalse(procesar_linea_automatica('LECTURA;1;2;3', self.url))
+        self.assertIn('La API rechazó la clave del dispositivo', registro.output[0])
+        self.assertEqual(ApiFalsa.cuerpos_recibidos, [])
 
     def test_linea_que_no_es_lectura_no_consulta_la_api(self):
         self.assertIsNone(procesar_linea_automatica('AVISO;LISTO', self.url))
@@ -357,6 +388,18 @@ class PruebasLeerArgumentos(unittest.TestCase):
     def test_automatico_excluye_lote_y_muestra(self):
         self.leer_con_error(['--puerto', 'COM3', '--automatico', '--lote', '1'])
         self.leer_con_error(['--puerto', 'COM3', '--automatico', '--muestra'])
+
+
+class PruebasMain(unittest.TestCase):
+    def test_sin_clave_del_dispositivo_termina_con_codigo_2_sin_abrir_el_puerto(self):
+        argumentos = ['puente_serial.py', '--puerto', 'COM3', '--automatico']
+        with mock.patch.dict(os.environ), mock.patch('sys.argv', argumentos), \
+                mock.patch('puente_serial.abrir_puerto') as abrir_puerto, \
+                self.assertLogs(level='ERROR') as registro:
+            os.environ.pop('CLAVE_DISPOSITIVO', None)
+            self.assertEqual(main(), 2)
+        abrir_puerto.assert_not_called()
+        self.assertIn('Falta la variable de entorno CLAVE_DISPOSITIVO', registro.output[0])
 
 
 class PruebasEjecutarPuente(unittest.TestCase):

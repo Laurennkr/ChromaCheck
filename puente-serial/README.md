@@ -31,6 +31,27 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Clave del dispositivo
+
+La API solo acepta las peticiones del puente si traen la clave del dispositivo en el encabezado `X-Clave-Dispositivo`. El puente la lee de la variable de entorno `CLAVE_DISPOSITIVO`, que debe ser la misma que tiene configurada la app (en Vercel o en `.env.local`), de mínimo 32 caracteres.
+
+En Windows, definirla una vez para el usuario con `cmd`:
+
+```bat
+setx CLAVE_DISPOSITIVO "la-clave"
+```
+
+`setx` no cambia la terminal que ya está abierta: después hay que abrir una terminal nueva para iniciar el puente.
+
+- Si falta la variable, el puente no abre el puerto: muestra "Falta la variable de entorno CLAVE_DISPOSITIVO" y termina con código 2.
+- Si la API responde 401, el puente muestra "La API rechazó la clave del dispositivo: revise CLAVE_DISPOSITIVO" y sigue leyendo.
+
+Con la app publicada en Vercel, indicar su dirección con `--url`:
+
+```powershell
+python puente_serial.py --puerto COM3 --automatico --url https://<dominio>.vercel.app
+```
+
 ## Uso: modo automático (recomendado)
 
 Con `--automatico`, el lote y el modo de captura se eligen en la web y el puente los sigue solo. No hace falta reiniciarlo para pasar de la muestra a la recolección ni para cambiar de lote.
@@ -105,6 +126,7 @@ Para calibrar, detener el puente (el puerto solo lo puede usar un programa a la 
 - Al abrir el puerto el script espera 2 segundos, porque abrirlo reinicia el Arduino, y luego verifica la calibración.
 - Si la API responde con error o no está disponible, el script lo registra en consola y sigue leyendo.
 - Si el puerto serial falla (por ejemplo, se desconecta el Arduino), el script termina con código 1.
+- Si falta `CLAVE_DISPOSITIVO`, el script termina con código 2 antes de abrir el puerto.
 
 ## Pruebas
 

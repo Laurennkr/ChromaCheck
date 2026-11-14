@@ -13,6 +13,7 @@ puente los consulta en GET /api/captura/activa antes de enviar cada lectura.
 """
 import argparse
 import logging
+import os
 import sys
 import time
 
@@ -38,6 +39,12 @@ PREFIJO_ESTADO_CALIBRACION = 'CALIBRACION;ESTADO;'
 ESTADO_CALIBRACION_VALIDA = 'VALIDA'
 ESTADO_SIN_CALIBRAR = 'SIN_CALIBRAR'
 TIEMPO_ESPERA_CALIBRACION_SEGUNDOS = 3
+VARIABLE_CLAVE = 'CLAVE_DISPOSITIVO'
+ENCABEZADO_CLAVE = 'X-Clave-Dispositivo'
+MENSAJE_CLAVE_RECHAZADA = 'La API rechazó la clave del dispositivo: revise CLAVE_DISPOSITIVO'
+MENSAJE_FALTA_CLAVE = ('Falta la variable de entorno CLAVE_DISPOSITIVO '
+                       '(ver puente-serial/README.md)')
+CODIGO_FALTA_CLAVE = 2
 
 
 def interpretar_linea(linea):
@@ -89,6 +96,22 @@ def extraer_mensaje_error(respuesta):
         return respuesta.text[:LONGITUD_MAXIMA_MENSAJE]
 
 
+def describir_rechazo(respuesta):
+    """Explica por qué la API no aceptó la petición; un 401 es casi siempre la clave."""
+    if respuesta.status_code == 401:
+        return MENSAJE_CLAVE_RECHAZADA
+    return f'La API respondió {respuesta.status_code}: {extraer_mensaje_error(respuesta)}'
+
+
+def leer_encabezados():
+    """Devuelve el encabezado con la clave del dispositivo, o {} si no está definida.
+
+    Sin la clave, la API responde 401 a todas las peticiones del puente.
+    """
+    clave = os.environ.get(VARIABLE_CLAVE)
+    return {ENCABEZADO_CLAVE: clave} if clave else {}
+
+
 def enviar_lectura(url_api, cuerpo):
     """Envía una lectura a la API. Devuelve True si quedó registrada.
 
@@ -97,14 +120,14 @@ def enviar_lectura(url_api, cuerpo):
     """
     url = url_api.rstrip('/') + RUTA_TARROS
     try:
-        respuesta = requests.post(url, json=cuerpo, timeout=TIEMPO_ESPERA_API_SEGUNDOS)
+        respuesta = requests.post(url, json=cuerpo, headers=leer_encabezados(),
+                                  timeout=TIEMPO_ESPERA_API_SEGUNDOS)
     except requests.RequestException as error:
         logging.error('No se pudo contactar la API en %s: %s', url, error)
         return False
 
     if respuesta.status_code != 201:
-        logging.error('La API respondió %s: %s', respuesta.status_code,
-                      extraer_mensaje_error(respuesta))
+        logging.error('%s', describir_rechazo(respuesta))
         return False
 
     logging.info('Lectura registrada: %s', cuerpo['resultadoHex'])
@@ -151,13 +174,13 @@ def consultar_captura_activa(url_api):
     """
     url = url_api.rstrip('/') + RUTA_CAPTURA_ACTIVA
     try:
-        respuesta = requests.get(url, timeout=TIEMPO_ESPERA_API_SEGUNDOS)
+        respuesta = requests.get(url, headers=leer_encabezados(),
+                                 timeout=TIEMPO_ESPERA_API_SEGUNDOS)
     except requests.RequestException as error:
         raise ErrorConsultaCaptura(f'No se pudo contactar la API en {url}: {error}') from error
 
     if respuesta.status_code != 200:
-        raise ErrorConsultaCaptura(
-            f'La API respondió {respuesta.status_code}: {extraer_mensaje_error(respuesta)}')
+        raise ErrorConsultaCaptura(describir_rechazo(respuesta))
 
     try:
         captura = respuesta.json()['datos']
@@ -319,6 +342,10 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
                         datefmt='%H:%M:%S')
     argumentos = leer_argumentos()
+    # Sin la clave la API rechaza todo: se avisa antes de abrir el puerto y reiniciar el Arduino
+    if not leer_encabezados():
+        logging.error(MENSAJE_FALTA_CLAVE)
+        return CODIGO_FALTA_CLAVE
     try:
         if argumentos.automatico:
             registrada = ejecutar_puente_automatico(argumentos.puerto, argumentos.url)
