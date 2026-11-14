@@ -28,7 +28,7 @@ Ya en `development`:
 Pendientes (identidad visual):
 
 - [x] "Agregar lote" es el botón principal de la pantalla (72 px), debajo del título.
-- [x] Los textos de la tarjeta usan 16 px como mínimo y sin mayúsculas sostenidas; los textos de captura usan las palabras nuevas ("Esperando muestra patrón", "Revisando tarros").
+- [x] Los textos de la tarjeta usan 16 px como mínimo y sin mayúsculas sostenidas; los textos de captura usan las palabras nuevas ("Esperando muestra patrón", "Recolectando tarros").
 - [x] El estado Pausado se distingue con "⚠ Pausado" en rojo, no solo con el color.
 - [x] El cuadro de color tiene borde y su código hex va debajo, no encima del color.
 - [x] El enlace de la tarjeta dice "Abrir lote", en texto normal (sin mayúsculas sostenidas).

@@ -73,11 +73,11 @@ Requiere **Node 22.6 o superior**: es la primera versión con `--experimental-st
 
 ## Rutas
 
-| Ruta          | Pantalla                                                                                                                                                                                                                                                                         |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`           | Lotes en producción, con el color de la muestra patrón y la diferencia de color promedio. El botón **Agregar lote** crea un lote nuevo con su código. La tarjeta indica en texto si el lote está **Esperando muestra patrón** o **Revisando tarros**, y **⚠ Pausado** si lo está |
-| `/lotes/[id]` | Pantalla del lote: muestra patrón, último tarro, últimas 8 lecturas y alertas del lote (de la más reciente a la más antigua). Si el lote está pausado, muestra un aviso con el motivo. Debajo del título va la acción principal, que controla el sensor (ver abajo)              |
-| `/historial`  | Historial de todos los tarros revisados, 6 por página (`?pagina=N`)                                                                                                                                                                                                              |
+| Ruta          | Pantalla                                                                                                                                                                                                                                                                            |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`           | Lotes en producción, con el color de la muestra patrón y la diferencia de color promedio. El botón **Agregar lote** crea un lote nuevo con su código. La tarjeta indica en texto si el lote está **Esperando muestra patrón** o **Recolectando tarros**, y **⚠ Pausado** si lo está |
+| `/lotes/[id]` | Pantalla del lote: muestra patrón, último tarro, últimas 8 lecturas y alertas del lote (de la más reciente a la más antigua). Si el lote está pausado, muestra un aviso con el motivo. Debajo del título va la acción principal, que controla el sensor (ver abajo)                 |
+| `/historial`  | Historial de todos los tarros revisados, 6 por página (`?pagina=N`)                                                                                                                                                                                                                 |
 
 En ambas pantallas el ΔE se muestra con 2 decimales (`—` si no está calculado) y el resultado de cada tarro con texto y símbolo: **Aprobado**, **No aprobado** o **Sin calcular**.
 
