@@ -32,7 +32,7 @@ Pendientes (flujo "Iniciar recolección"):
 
 - [x] Con muestra, la acción principal de la pantalla del lote es "Iniciar recolección", en el mismo lugar donde estaba "Agregar muestra".
 - [x] La pantalla completa dice "Recolección del lote <código>", "● Recolectando tarros…" y tiene el botón "Terminar recolección".
-- [ ] En ninguna pantalla aparece la palabra `Recoleccion` (sin tilde) ni los textos antiguos "Revisar tarros", "Revisando tarros" o "Terminar revisión".
+- [x] En ninguna pantalla aparece la palabra `Recoleccion` (sin tilde) ni los textos antiguos "Revisar tarros", "Revisando tarros" o "Terminar revisión".
 - [x] La pantalla completa cumple las mismas reglas de F3 (opaca, 48 px, botones de 72 px, Esc, foco de vuelta, abierta al recargar si el lote está en `Recoleccion`).
 - [x] Antes del primer tarro dice "Esperando el primer tarro…".
 - [x] El dictamen del último tarro se ve a 60 px; el ΔE como "Diferencia de color: 3,42 ΔE".
