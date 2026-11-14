@@ -30,15 +30,15 @@ Ya en `development` (API y cálculo):
 
 Pendientes (flujo "Iniciar recolección"):
 
-- [ ] Con muestra, la acción principal de la pantalla del lote es "Iniciar recolección", en el mismo lugar donde estaba "Agregar muestra".
-- [ ] La pantalla completa dice "Recolección del lote <código>", "● Recolectando tarros…" y tiene el botón "Terminar recolección".
+- [x] Con muestra, la acción principal de la pantalla del lote es "Iniciar recolección", en el mismo lugar donde estaba "Agregar muestra".
+- [x] La pantalla completa dice "Recolección del lote <código>", "● Recolectando tarros…" y tiene el botón "Terminar recolección".
 - [ ] En ninguna pantalla aparece la palabra `Recoleccion` (sin tilde) ni los textos antiguos "Revisar tarros", "Revisando tarros" o "Terminar revisión".
-- [ ] La pantalla completa cumple las mismas reglas de F3 (opaca, 48 px, botones de 72 px, Esc, foco de vuelta, abierta al recargar si el lote está en `Recoleccion`).
-- [ ] Antes del primer tarro dice "Esperando el primer tarro…".
-- [ ] El dictamen del último tarro se ve a 60 px; el ΔE como "Diferencia de color: 3,42 ΔE".
+- [x] La pantalla completa cumple las mismas reglas de F3 (opaca, 48 px, botones de 72 px, Esc, foco de vuelta, abierta al recargar si el lote está en `Recoleccion`).
+- [x] Antes del primer tarro dice "Esperando el primer tarro…".
+- [x] El dictamen del último tarro se ve a 60 px; el ΔE como "Diferencia de color: 3,42 ΔE".
 - [ ] Los cuadros de color miden al menos 160 × 160 px, sin borde, y el código hex va debajo.
 - [ ] El contador dice "Tarros revisados: N. No aprobados: M" y se actualiza con cada lectura.
-- [ ] Un tarro nuevo se anuncia a los lectores de pantalla (`aria-live="polite"`).
+- [x] Un tarro nuevo se anuncia a los lectores de pantalla (`aria-live="polite"`).
 
 ## Fuera de alcance
 

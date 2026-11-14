@@ -61,5 +61,5 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 - [x] 7.2 Logos: sección "Archivos del logo" en `diseno/identidad-visual.md` (letras negras con fondo claro, letras blancas con fondo oscuro; la app usa `public/`; las fuentes originales van en `diseno/logos/negro/` y `diseno/logos/blanco/`). No había archivos de logo fuera de `public/` para mover
 - [ ] 7.3 Tokens cálidos y fuentes Montserrat e Inter en `app/globals.css` y `app/layout.tsx`
 - [ ] 7.4 `CuadroColor` sin borde y `Boton` en Montserrat SemiBold
-- [ ] 7.5 Flujo Agregar muestra e Iniciar recolección (`app/lotes/[id]`, `ControlCaptura`, `PantallaCaptura` y la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`)
+- [x] 7.5 Flujo Agregar muestra e Iniciar recolección (`app/lotes/[id]`, `ControlCaptura`, `PantallaCaptura` y la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`)
 - [ ] 7.6 Verificación: prettier, lint, `jest --coverage` y build

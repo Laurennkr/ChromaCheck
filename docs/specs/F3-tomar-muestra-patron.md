@@ -29,22 +29,22 @@ Ya en `development` (API):
 
 Pendientes (flujo "Agregar muestra"):
 
-- [ ] Existe la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`, con pruebas: verdadera solo si el lote está Activo, en modo `Inactivo` y sin muestra.
-- [ ] Al abrir un lote que cumple `necesitaMuestraPatron`, la pantalla completa del estado A aparece sola, con "Lote <código>", "✕ Cerrar", "Agregue la muestra patrón de este lote", la descripción y el botón centrado "Agregar muestra" de 72 px.
-- [ ] Un lote pausado, o uno que ya tiene muestra, no abre la pantalla del estado A.
-- [ ] En el estado A, "✕ Cerrar" y Esc cierran la pantalla sin ninguna llamada a la API (se comprueba en la pestaña Red del navegador).
-- [ ] Con el estado A cerrado, el lote muestra "Este lote todavía no tiene muestra patrón" y el botón centrado "Agregar muestra".
-- [ ] Al salir del lote y volver a entrar sin muestra, la pantalla del estado A sale otra vez.
-- [ ] Al pulsar "Agregar muestra", el lote pasa a modo `Muestra` y la pantalla dice "Coloque la muestra en el sensor", "● Esperando la muestra…" y "Cancelar".
-- [ ] En el estado B, "Cancelar", "✕ Cerrar" y Esc devuelven el lote a `Inactivo`.
-- [ ] Al guardarse la muestra, la pantalla completa se cierra sola, el lote muestra el color con "✓ Muestra patrón guardada" y la acción principal es "Iniciar recolección".
+- [x] Existe la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`, con pruebas: verdadera solo si el lote está Activo, en modo `Inactivo` y sin muestra.
+- [x] Al abrir un lote que cumple `necesitaMuestraPatron`, la pantalla completa del estado A aparece sola, con "Lote <código>", "✕ Cerrar", "Agregue la muestra patrón de este lote", la descripción y el botón centrado "Agregar muestra" de 72 px.
+- [x] Un lote pausado, o uno que ya tiene muestra, no abre la pantalla del estado A.
+- [x] En el estado A, "✕ Cerrar" y Esc cierran la pantalla sin ninguna llamada a la API (se comprueba en la pestaña Red del navegador).
+- [x] Con el estado A cerrado, el lote muestra "Este lote todavía no tiene muestra patrón" y el botón centrado "Agregar muestra".
+- [x] Al salir del lote y volver a entrar sin muestra, la pantalla del estado A sale otra vez.
+- [x] Al pulsar "Agregar muestra", el lote pasa a modo `Muestra` y la pantalla dice "Coloque la muestra en el sensor", "● Esperando la muestra…" y "Cancelar".
+- [x] En el estado B, "Cancelar", "✕ Cerrar" y Esc devuelven el lote a `Inactivo`.
+- [x] Al guardarse la muestra, la pantalla completa se cierra sola, el lote muestra el color con "✓ Muestra patrón guardada" y la acción principal es "Iniciar recolección".
 - [ ] El cuadro de la muestra no tiene borde y su código hex va debajo.
-- [ ] La pantalla completa cubre todo el viewport con fondo opaco; mientras está abierta no se puede usar lo que hay detrás.
-- [ ] Título de 48 px, una sola instrucción y botones de 72 px de alto.
-- [ ] Al cerrarla, el foco vuelve al botón principal de la pantalla del lote.
-- [ ] Al recargar la página con el lote en modo `Muestra`, la pantalla completa aparece abierta en el estado B.
-- [ ] Si la API rechaza el cambio, el motivo se muestra en texto de 18 px con "⚠" y lo que hay que hacer.
-- [ ] Usa `role="dialog"`, `aria-modal="true"` y `aria-labelledby` apuntando al título; "● Esperando la muestra…" usa `role="status"`.
+- [x] La pantalla completa cubre todo el viewport con fondo opaco; mientras está abierta no se puede usar lo que hay detrás.
+- [x] Título de 48 px, una sola instrucción y botones de 72 px de alto.
+- [x] Al cerrarla, el foco vuelve al botón principal de la pantalla del lote.
+- [x] Al recargar la página con el lote en modo `Muestra`, la pantalla completa aparece abierta en el estado B.
+- [x] Si la API rechaza el cambio, el motivo se muestra en texto de 18 px con "⚠" y lo que hay que hacer.
+- [x] Usa `role="dialog"`, `aria-modal="true"` y `aria-labelledby` apuntando al título; "● Esperando la muestra…" usa `role="status"`.
 
 ## Fuera de alcance
 
