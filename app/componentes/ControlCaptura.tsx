@@ -222,7 +222,6 @@ function EstadoSinMuestra({
         esGrande
         autoFocus
         data-foco-inicial
-        className="font-titulo"
         disabled={Boolean(capturaDeOtroLote)}
         estaEnviando={estaEnviando}
         textoEnviando="Abriendo…"
@@ -252,7 +251,6 @@ function EstadoEsperandoMuestra({
         esGrande
         autoFocus
         data-foco-inicial
-        className="font-titulo"
         estaEnviando={estaEnviando}
         textoEnviando="Cancelando…"
         onClick={cancelar}
@@ -320,7 +318,6 @@ function EstadoRecoleccion({
         esGrande
         autoFocus
         data-foco-inicial
-        className="font-titulo"
         estaEnviando={estaEnviando}
         textoEnviando="Terminando…"
         onClick={terminar}
@@ -435,7 +432,7 @@ function BotonAccionPrincipal({
       disabled={estaDeshabilitado || estaEnviando}
       aria-busy={estaEnviando || undefined}
       onClick={onClick}
-      className={`${obtenerClasesBoton({ esGrande: true })} font-titulo`}
+      className={obtenerClasesBoton({ esGrande: true })}
     >
       {estaEnviando ? 'Abriendo…' : children}
     </button>
