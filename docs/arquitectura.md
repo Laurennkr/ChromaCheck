@@ -17,9 +17,9 @@ Arduino Nano + TCS3200 ──USB serial, 9600 baudios──▶ puente-serial (Py
 | Pieza     | Carpeta                                       | Responsable | Contrato                                                 |
 | --------- | --------------------------------------------- | ----------- | -------------------------------------------------------- |
 | Firmware  | `firmware/chromacheck_sensor/`                | Lauren      | [contratos/serial.md](contratos/serial.md)               |
-| Puente    | `puente-serial/`                              | Michael     | [contratos/api.md](contratos/api.md)                     |
+| Puente    | `puente-serial/`                              | Lauren      | [contratos/api.md](contratos/api.md)                     |
 | Web y API | `app/`, `lib/`                                | Lauren      | [contratos/api.md](contratos/api.md)                     |
-| Login     | `app/login/`, `lib/modulos/auth/`, `proxy.ts` | Michael     | [contratos/autenticacion.md](contratos/autenticacion.md) |
+| Login     | `app/login/`, `lib/modulos/auth/`, `proxy.ts` | Lauren      | [contratos/autenticacion.md](contratos/autenticacion.md) |
 
 ## Capas del back
 

@@ -13,7 +13,7 @@
 - Commits pequeños con Conventional Commits en imperativo: `tipo(alcance): descripción`.
 - Los PR van a `development` con revisor `michaelarias25`: `gh pr create --base development --reviewer michaelarias25`.
 - Sin atribución de IA en commits ni en PR: nada de `Co-Authored-By` ni "Generated with Claude Code".
-- Nunca aprobar ni fusionar PR: la aprobación es de Michael.
+- Nunca aprobar ni fusionar PR: la aprobación y la fusión las hace Lauren.
 - Nunca hacer push a `main` ni force-push.
 
 ## Datos de prueba

@@ -1,6 +1,6 @@
 # Contrato serial · Arduino ↔ puente
 
-Comunicación por USB entre el firmware (`firmware/chromacheck_sensor/`, Lauren) y el puente (`puente-serial/`, Michael). Lo que el puente hace después con cada lectura está en [api.md](api.md#contrato-con-el-puente-serial).
+Comunicación por USB entre el firmware (`firmware/chromacheck_sensor/`) y el puente (`puente-serial/`). Lo que el puente hace después con cada lectura está en [api.md](api.md#contrato-con-el-puente-serial).
 
 ## Conexión
 
