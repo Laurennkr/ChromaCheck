@@ -49,9 +49,10 @@ export default async function PaginaLote({ params }: PageProps<'/lotes/[id]'>) {
         {/* Acción principal de la pantalla, debajo del título */}
         <ControlCaptura
           loteId={lote.id}
+          codigo={lote.codigo}
           estado={lote.estado}
           modoCaptura={lote.modo_captura}
-          tieneMuestra={Boolean(muestra)}
+          muestraHex={muestra?.resultado_hex ?? null}
           capturaDeOtroLote={capturaDeOtroLote}
         />
 
