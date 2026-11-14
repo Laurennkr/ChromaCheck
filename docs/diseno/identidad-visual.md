@@ -44,25 +44,27 @@ En la interfaz se usan tonos de esos mismos colores, ajustados para lograr un co
 
 Este es el tema claro, el de por defecto y el recomendado: fondo claro y cálido, y texto oscuro. El encabezado sigue el tema elegido (ver [Tema oscuro](#tema-oscuro)). Los tokens tienen los mismos nombres en los dos temas; solo cambian sus valores.
 
-| Token                        | Hex       | Uso                                                | Contraste                                        |
-| ---------------------------- | --------- | -------------------------------------------------- | ------------------------------------------------ |
-| `fondo`                      | `#F5F2EC` | Fondo de las pantallas                             | —                                                |
-| `superficie`                 | `#FCFBF8` | Tarjetas, tablas, pantalla completa                | —                                                |
-| `encabezado`                 | `#FCFBF8` | Fondo del encabezado (logo de letras negras)       | —                                                |
-| `texto`                      | `#34383D` | Texto principal (Vulcan)                           | 11,4:1 sobre `superficie` y 10,6:1 sobre `fondo` |
-| `texto-secundario`           | `#42474E` | Etiquetas, fechas, ayudas                          | 9,1:1 sobre `superficie` y 8,4:1 sobre `fondo`   |
-| `borde`                      | `#898376` | Bordes de tarjetas e inputs                        | 3,6:1 sobre `superficie` y 3,4:1 sobre `fondo`   |
-| `accion`                     | `#3D5266` | Botón principal, enlaces, foco, estado "Esperando" | 7,8:1 sobre `superficie` y 7,2:1 sobre `fondo`   |
-| `texto-sobre-accion`         | `#FFFFFF` | Texto sobre `accion`                               | 8,1:1 sobre `accion`                             |
-| `aprobado`                   | `#155C33` | Dictamen Aprobado, "Muestra patrón guardada"       | 8,0:1 con `texto-sobre-aprobado`                 |
-| `texto-sobre-aprobado`       | `#FFFFFF` | Texto sobre `aprobado`                             | —                                                |
-| `aprobado-suave`             | `#E3F4E8` | Fondo de avisos de éxito                           | —                                                |
-| `texto-sobre-aprobado-suave` | `#14532D` | Texto sobre `aprobado-suave`                       | 8,0:1                                            |
-| `alerta`                     | `#AB892C` | Borde y franja de la alerta amarilla               | 3,2:1 (solo elemento gráfico)                    |
-| `alerta-suave`               | `#F5EDD6` | Fondo de la alerta amarilla                        | —                                                |
-| `texto-sobre-alerta-suave`   | `#5A4817` | Texto sobre `alerta-suave`                         | 7,6:1                                            |
-| `peligro`                    | `#8D312D` | No aprobado, alerta roja, lote pausado, "Detener"  | 7,8:1 sobre `superficie` y 7,2:1 sobre `fondo`   |
-| `texto-sobre-peligro`        | `#FFFFFF` | Texto sobre `peligro`                              | 8,1:1 sobre `peligro`                            |
+| Token                        | Hex       | Uso                                                | Contraste                                             |
+| ---------------------------- | --------- | -------------------------------------------------- | ----------------------------------------------------- |
+| `fondo`                      | `#F5F2EC` | Fondo de las pantallas                             | —                                                     |
+| `superficie`                 | `#FCFBF8` | Tarjetas, tablas, pantalla completa                | —                                                     |
+| `encabezado`                 | `#FCFBF8` | Fondo del encabezado (logo de letras negras)       | —                                                     |
+| `texto`                      | `#34383D` | Texto principal (Vulcan)                           | 11,4:1 sobre `superficie` y 10,6:1 sobre `fondo`      |
+| `texto-secundario`           | `#42474E` | Etiquetas, fechas, ayudas                          | 9,1:1 sobre `superficie` y 8,4:1 sobre `fondo`        |
+| `borde`                      | `#898376` | Bordes de tarjetas e inputs                        | 3,6:1 sobre `superficie` y 3,4:1 sobre `fondo`        |
+| `accion`                     | `#3D5266` | Botón principal, enlaces, foco, estado "Esperando" | 7,8:1 sobre `superficie` y 7,2:1 sobre `fondo`        |
+| `texto-sobre-accion`         | `#FFFFFF` | Texto sobre `accion`                               | 8,1:1 sobre `accion`                                  |
+| `aprobado`                   | `#155C33` | Dictamen Aprobado, "Muestra patrón guardada"       | 8,0:1 con `texto-sobre-aprobado`                      |
+| `texto-sobre-aprobado`       | `#FFFFFF` | Texto sobre `aprobado`                             | —                                                     |
+| `aprobado-suave`             | `#E3F4E8` | Fondo de avisos de éxito                           | —                                                     |
+| `texto-sobre-aprobado-suave` | `#14532D` | Texto sobre `aprobado-suave`                       | 8,0:1                                                 |
+| `alerta`                     | `#A38229` | Borde y franja de la alerta amarilla               | 3,1:1 sobre `alerta-suave` y 3,5:1 sobre `superficie` |
+| `alerta-suave`               | `#F5EDD6` | Fondo de la alerta amarilla                        | —                                                     |
+| `texto-sobre-alerta-suave`   | `#5A4817` | Texto sobre `alerta-suave`                         | 7,6:1                                                 |
+| `peligro`                    | `#8D312D` | No aprobado, alerta roja, lote pausado, "Detener"  | 7,8:1 sobre `superficie` y 7,2:1 sobre `fondo`        |
+| `texto-sobre-peligro`        | `#FFFFFF` | Texto sobre `peligro`                              | 8,1:1 sobre `peligro`                                 |
+
+`alerta` nunca se usa para texto: es un elemento gráfico (borde y franja) y cumple el mínimo de 3:1 que pide WCAG 2.2 para elementos gráficos (criterio 1.4.11). El texto de la alerta amarilla va en `texto-sobre-alerta-suave`.
 
 Origen de los tonos: `accion` es Bay View oscurecido, `alerta` es Luxurious oscurecido, `peligro` es Firebug oscurecido y `texto` es Vulcan. El verde de `aprobado` no es de la marca: se conserva porque significa "aprobado" en cualquier taller.
 
