@@ -1,5 +1,7 @@
 # ChromaCheck
 
+![calidad](https://github.com/Laurennkr/ChromaCheck/actions/workflows/calidad.yml/badge.svg)
+
 Plataforma web de control de calidad para una fábrica de pintura. Un prototipo IoT (Arduino con sensor TCS3200) lee el color de cada tarro, el sistema calcula su desviación de color (ΔE) frente al tarro muestra del lote y genera alertas cuando la desviación supera la tolerancia.
 
 ## Tecnologías
