@@ -6,7 +6,7 @@ Como usuario del taller, quiero entrar con mi usuario y contraseña para que sol
 
 ## Relación
 
-Pantalla `/login`. API: `POST /api/auth/login`, `POST /api/auth/logout` ([contratos/autenticacion.md](../contratos/autenticacion.md)). Responsable: Michael.
+Pantalla `/login`. API: `POST /api/auth/login`, `POST /api/auth/logout` ([contratos/autenticacion.md](../contratos/autenticacion.md)). Responsable: Lauren.
 
 ## Comportamiento
 

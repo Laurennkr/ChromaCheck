@@ -7,7 +7,7 @@ Las tareas ya terminadas antes de crear esta carpeta no se listan: su estado est
 ## 1. Documentación (rama `feature/carpeta-docs`)
 
 - [x] 1.1 Crear la estructura de `docs/` y mover `api.md` y `autenticacion.md` a `docs/contratos/`
-- [x] 1.2 Actualizar los enlaces a `docs/api.md` y `docs/autenticacion.md` (`README.md`, `docs/contratos/` y referencias de `puente-serial/`); lo de `puente-serial/` lo cierra Michael en la tarea 3.9
+- [x] 1.2 Actualizar los enlaces a `docs/api.md` y `docs/autenticacion.md` (`README.md`, `docs/contratos/` y referencias de `puente-serial/`)
 - [x] 1.3 Agregar la skill `.claude/skills/ui-componentes/SKILL.md`
 - [ ] 1.4 Confirmar con el equipo las decisiones marcadas como **Propuesta** en `decisiones.md`
 
@@ -36,7 +36,7 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 - [ ] 3.6 F5 · Estados de alerta amarilla (dorado) y lote pausado (rojo): 5 segundos sin botones y después "Reanudar recolección" y "Entendido"
 - [ ] 3.7 F5 · "Reanudar recolección" como acción principal en la pantalla de un lote pausado
 - [x] 3.8 Reemplazar `ControlCaptura` por el botón principal + `PantallaCaptura` en `app/lotes/[id]/page.tsx`; ocultar el encabezado mientras está abierta
-- [ ] 3.9 Actualizar los textos de los botones en `README.md` y pedir a Michael que los actualice en `puente-serial/README.md`
+- [ ] 3.9 Actualizar los textos de los botones en `README.md` y en `puente-serial/README.md`
 - [ ] 3.10 Prueba rápida con dos personas del taller: que tomen la muestra y revisen 3 tarros sin ayuda (ensayo de ACQ-01); anotar lo que no entendieron
 
 ## 4. Validación del objetivo del MVP
