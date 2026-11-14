@@ -47,6 +47,7 @@ export default function PantallaCaptura({
 
     return () => {
       if (dialogo.open) dialogo.close();
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- se lee al cerrar a propósito: el destino del foco puede cambiar mientras la pantalla está abierta
       const destino = elementoFocoAlCerrar?.current ?? elementoQueAbrio;
       if (destino?.isConnected) destino.focus();
     };
