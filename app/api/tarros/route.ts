@@ -1,60 +1,81 @@
-import { NextResponse } from 'next/server';
 import {
   obtenerTarrosDeLote,
-  obtenerMuestraDeLote,
-  registrarTarro,
-  calcularDesviacionDeltaE,
-  excedeToleranciaDeltaE,
+  registrarLecturaDelSensor,
+  registrarMuestraDelSensor,
+  type ResultadoRegistroTarro,
 } from '@/lib/modulos/tarros/servicio';
+import {
+  leerCuerpoJson,
+  responderError,
+  responderErrorInterno,
+  responderExito,
+} from '@/lib/respuestas';
+import {
+  coincidenColorHexYRgb,
+  esColorHexValido,
+  esColorRgbValido,
+  esEnteroPositivo,
+} from '@/lib/validacion';
 
-// GET /api/tarros?loteId=1 — lista los tarros de un lote
 export async function GET(peticion: Request) {
   try {
     const url = new URL(peticion.url);
     const loteId = Number(url.searchParams.get('loteId'));
+    if (!esEnteroPositivo(loteId)) {
+      return responderError('El parámetro "loteId" debe ser un entero positivo', 400);
+    }
+
     const tarros = await obtenerTarrosDeLote(loteId);
-    return NextResponse.json({ exito: true, datos: tarros });
+    return responderExito(tarros);
   } catch (error) {
-    return NextResponse.json({ exito: false, error: String(error) }, { status: 500 });
+    return responderErrorInterno(error);
   }
 }
 
-// POST /api/tarros — registra una lectura nueva, calculando deltaE si no es la muestra
+// Registra el tarro muestra de un lote o una lectura del sensor. Las reglas (modo de captura,
+// lote pausado, muestra única) las aplica el servicio; aquí solo se valida el formato
 export async function POST(peticion: Request) {
   try {
-    const cuerpo = await peticion.json();
-    const { loteId, resultadoHex, rgb, esMuestra } = cuerpo;
-
-    if (esMuestra) {
-      const tarroMuestra = await registrarTarro(loteId, resultadoHex, null, 'Muestra', true);
-      return NextResponse.json({ exito: true, datos: tarroMuestra }, { status: 201 });
+    const cuerpo = await leerCuerpoJson(peticion);
+    if (!cuerpo) {
+      return responderError('El cuerpo de la petición debe ser un objeto JSON', 400);
     }
 
-    const muestra = await obtenerMuestraDeLote(loteId);
-    if (!muestra) {
-      return NextResponse.json(
-        { exito: false, error: 'El lote no tiene tarro muestra registrado' },
-        { status: 400 }
+    const { loteId, resultadoHex, rgb } = cuerpo;
+    if (!esEnteroPositivo(loteId)) {
+      return responderError('El campo "loteId" debe ser un entero positivo', 400);
+    }
+    if (!esColorHexValido(resultadoHex)) {
+      return responderError('El campo "resultadoHex" debe tener el formato #RRGGBB', 400);
+    }
+
+    if (cuerpo.esMuestra === true) {
+      return responderRegistro(await registrarMuestraDelSensor(loteId, resultadoHex), loteId);
+    }
+
+    if (!esColorRgbValido(rgb)) {
+      return responderError(
+        'El campo "rgb" debe ser un arreglo [r, g, b] de enteros entre 0 y 255',
+        400
       );
     }
+    if (!coincidenColorHexYRgb(resultadoHex, rgb)) {
+      return responderError('Los campos "resultadoHex" y "rgb" no representan el mismo color', 400);
+    }
 
-    const rgbMuestra = hexARgb(muestra.resultado_hex);
-    const desviacionDeltaE = calcularDesviacionDeltaE(rgbMuestra, rgb);
-    const resultado = excedeToleranciaDeltaE(desviacionDeltaE) ? 'No Aprobado' : 'Aprobado';
-
-    const tarroNuevo = await registrarTarro(loteId, resultadoHex, desviacionDeltaE, resultado, false);
-    return NextResponse.json({ exito: true, datos: tarroNuevo }, { status: 201 });
+    return responderRegistro(await registrarLecturaDelSensor(loteId, resultadoHex, rgb), loteId);
   } catch (error) {
-    return NextResponse.json({ exito: false, error: String(error) }, { status: 500 });
+    return responderErrorInterno(error);
   }
 }
 
-// Convierte un color hex (#RRGGBB) a un arreglo RGB
-function hexARgb(hex: string): [number, number, number] {
-  const valor = hex.replace('#', '');
-  return [
-    parseInt(valor.substring(0, 2), 16),
-    parseInt(valor.substring(2, 4), 16),
-    parseInt(valor.substring(4, 6), 16),
-  ];
+// Traduce el resultado del registro a la respuesta HTTP
+function responderRegistro(resultado: ResultadoRegistroTarro, loteId: number) {
+  if (resultado.tipo === 'loteInexistente') {
+    return responderError(`El lote ${loteId} no existe`, 404);
+  }
+  if (resultado.tipo === 'rechazado') {
+    return responderError(resultado.mensaje, 409);
+  }
+  return responderExito(resultado.tarro, 201);
 }

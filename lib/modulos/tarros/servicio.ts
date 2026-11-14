@@ -1,88 +1,180 @@
-import pool from '@/lib/db';
+import { ejecutarEnTransaccion } from '@/lib/db';
+import { crearAlerta } from '@/lib/modulos/alertas/servicio';
+import { finalizarModoMuestra, obtenerLotePorId, pausarLote } from '@/lib/modulos/lotes/servicio';
+import {
+  buscarLecturasRecientesDeLote,
+  buscarMuestraDeLote,
+  buscarPaginaHistorial,
+  buscarTarrosDeLote,
+  buscarUltimasDesviacionesDeLote,
+  contarLecturas,
+  insertarTarro,
+  type Tarro,
+} from './repositorio';
+import {
+  calcularDesviacionDeltaE,
+  construirAlerta,
+  convertirHexARgb,
+  crearMensajeSinModoMuestra,
+  formanPatronAcumulativo,
+  LECTURAS_PATRON_ACUMULATIVO,
+  obtenerMotivoRechazoLectura,
+  obtenerMotivoRechazoMuestra,
+  obtenerNivelAlerta,
+  obtenerResultadoLectura,
+  RESULTADO_MUESTRA,
+  type ColorRgb,
+} from './reglas';
+
+export type ResultadoRegistroTarro =
+  | { tipo: 'loteInexistente' }
+  | { tipo: 'rechazado'; mensaje: string }
+  | { tipo: 'registrado'; tarro: Tarro };
 
 // Trae todos los tarros de un lote específico
 export async function obtenerTarrosDeLote(loteId: number) {
-  const resultado = await pool.query(
-    'SELECT * FROM tarros WHERE lote_id = $1 ORDER BY timestamp ASC',
-    [loteId]
-  );
-  return resultado.rows;
+  return buscarTarrosDeLote(loteId);
+}
+
+// Trae las lecturas más recientes de un lote (sin la muestra), de la más nueva a la más antigua
+export async function obtenerLecturasRecientesDeLote(loteId: number, cantidad: number) {
+  return buscarLecturasRecientesDeLote(loteId, cantidad);
 }
 
 // Trae el tarro muestra (referencia) de un lote
 export async function obtenerMuestraDeLote(loteId: number) {
-  const resultado = await pool.query(
-    'SELECT * FROM tarros WHERE lote_id = $1 AND es_muestra = true',
-    [loteId]
-  );
-  return resultado.rows[0] || null;
+  return buscarMuestraDeLote(loteId);
 }
 
-// Convierte un color RGB (0-255) a espacio Lab, paso previo para calcular deltaE
-function convertirRgbALab(r: number, g: number, b: number) {
-  const linearizar = (c: number) => {
-    const valor = c / 255;
-    return valor > 0.04045
-      ? Math.pow((valor + 0.055) / 1.055, 2.4)
-      : valor / 12.92;
+// Trae una página del historial general de tarros con el código de su lote,
+// junto con el total de tarros para calcular cuántas páginas hay
+export async function obtenerHistorialTarros(pagina: number, tarrosPorPagina: number) {
+  const desplazamiento = (pagina - 1) * tarrosPorPagina;
+  const [tarros, totalTarros] = await Promise.all([
+    buscarPaginaHistorial(tarrosPorPagina, desplazamiento),
+    contarLecturas(),
+  ]);
+  return { tarros, totalTarros };
+}
+
+// Registra el tarro muestra y deja el lote en modo 'Inactivo', en una sola transacción.
+// Devuelve null si el lote no está en modo 'Muestra' (por ejemplo, otra petición ya registró la muestra)
+export async function registrarMuestraDeLote(loteId: number, resultadoHex: string) {
+  return ejecutarEnTransaccion(async (cliente) => {
+    const estabaEnModoMuestra = await finalizarModoMuestra(cliente, loteId);
+    if (!estabaEnModoMuestra) return null;
+    return insertarTarro(
+      {
+        loteId,
+        resultadoHex,
+        desviacionDeltaE: null,
+        resultado: RESULTADO_MUESTRA,
+        esMuestra: true,
+      },
+      cliente
+    );
+  });
+}
+
+// Trae el lote y su muestra para decidir si acepta un tarro; null si el lote no existe
+async function buscarLoteYMuestra(loteId: number) {
+  const [lote, muestra] = await Promise.all([
+    obtenerLotePorId(loteId),
+    buscarMuestraDeLote(loteId),
+  ]);
+  if (!lote) return null;
+  const loteParaRegistro = {
+    estado: lote.estado,
+    modoCaptura: lote.modo_captura,
+    tieneMuestra: Boolean(muestra),
   };
-
-  const rLineal = linearizar(r);
-  const gLineal = linearizar(g);
-  const bLineal = linearizar(b);
-
-  const x = (rLineal * 0.4124 + gLineal * 0.3576 + bLineal * 0.1805) / 0.95047;
-  const y = (rLineal * 0.2126 + gLineal * 0.7152 + bLineal * 0.0722) / 1.0;
-  const z = (rLineal * 0.0193 + gLineal * 0.1192 + bLineal * 0.9505) / 1.08883;
-
-  const f = (t: number) =>
-    t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
-
-  const fx = f(x);
-  const fy = f(y);
-  const fz = f(z);
-
-  const l = 116 * fy - 16;
-  const a = 500 * (fx - fy);
-  const bLab = 200 * (fy - fz);
-
-  return { l, a, b: bLab };
+  return { loteParaRegistro, muestra };
 }
 
-// Calcula la desviación deltaE (CIE76) entre el color muestra y el color leído
-export function calcularDesviacionDeltaE(
-  rgbMuestra: [number, number, number],
-  rgbTarro: [number, number, number]
-): number {
-  const labMuestra = convertirRgbALab(...rgbMuestra);
-  const labTarro = convertirRgbALab(...rgbTarro);
+// Registra el tarro muestra que envía el sensor (POST /api/tarros con esMuestra), si el lote
+// está en modo Muestra y aún no tiene muestra
+export async function registrarMuestraDelSensor(
+  loteId: number,
+  resultadoHex: string
+): Promise<ResultadoRegistroTarro> {
+  const datos = await buscarLoteYMuestra(loteId);
+  if (!datos) return { tipo: 'loteInexistente' };
 
-  const deltaE = Math.sqrt(
-    Math.pow(labMuestra.l - labTarro.l, 2) +
-    Math.pow(labMuestra.a - labTarro.a, 2) +
-    Math.pow(labMuestra.b - labTarro.b, 2)
-  );
+  const motivoRechazo = obtenerMotivoRechazoMuestra(datos.loteParaRegistro);
+  if (motivoRechazo) return { tipo: 'rechazado', mensaje: motivoRechazo };
 
-  return Math.round(deltaE * 100) / 100;
+  // Registra la muestra y deja el lote en modo Inactivo en la misma transacción
+  const tarro = await registrarMuestraDeLote(loteId, resultadoHex);
+  if (!tarro) {
+    // Otra petición registró la muestra o cambió el modo entre la revisión y el registro
+    return {
+      tipo: 'rechazado',
+      mensaje: crearMensajeSinModoMuestra(datos.loteParaRegistro.modoCaptura),
+    };
+  }
+  return { tipo: 'registrado', tarro };
 }
 
-// Determina si una desviación deltaE supera el límite de tolerancia (0.8 por defecto)
-export function excedeToleranciaDeltaE(desviacionDeltaE: number, limite = 0.8): boolean {
-  return desviacionDeltaE > limite;
-}
-
-// Registra un tarro nuevo (muestra o lectura normal) en un lote
-export async function registrarTarro(
+// Registra una lectura que envía el sensor, si el lote tiene muestra, está Activo y en modo
+// Recoleccion: calcula deltaE, decide el resultado y genera la alerta si aplica
+export async function registrarLecturaDelSensor(
   loteId: number,
   resultadoHex: string,
-  desviacionDeltaE: number | null,
-  resultado: string,
-  esMuestra: boolean
+  rgb: ColorRgb
+): Promise<ResultadoRegistroTarro> {
+  const datos = await buscarLoteYMuestra(loteId);
+  if (!datos) return { tipo: 'loteInexistente' };
+
+  const motivoRechazo = obtenerMotivoRechazoLectura(datos.loteParaRegistro);
+  if (motivoRechazo || !datos.muestra) {
+    return {
+      tipo: 'rechazado',
+      mensaje: motivoRechazo ?? 'El lote no tiene tarro muestra registrado',
+    };
+  }
+
+  const tarro = await registrarLectura(loteId, resultadoHex, rgb, datos.muestra.resultado_hex);
+  return { tipo: 'registrado', tarro };
+}
+
+// Guarda la lectura con su deltaE y su dictamen, y registra la alerta si corresponde
+async function registrarLectura(
+  loteId: number,
+  resultadoHex: string,
+  rgb: ColorRgb,
+  muestraHex: string
 ) {
-  const respuesta = await pool.query(
-    `INSERT INTO tarros (lote_id, resultado_hex, desviacion_delta_e, resultado, es_muestra)
-     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [loteId, resultadoHex, desviacionDeltaE, resultado, esMuestra]
-  );
-  return respuesta.rows[0];
+  const desviacionDeltaE = calcularDesviacionDeltaE(convertirHexARgb(muestraHex), rgb);
+  const tarroNuevo = await insertarTarro({
+    loteId,
+    resultadoHex,
+    desviacionDeltaE,
+    resultado: obtenerResultadoLectura(desviacionDeltaE),
+    esMuestra: false,
+  });
+
+  await registrarAlertaSiCorresponde(loteId, tarroNuevo.id_tarro, desviacionDeltaE);
+  return tarroNuevo;
+}
+
+// Si la lectura está fuera de tolerancia, registra la alerta: Roja (y pausa el lote) si las
+// últimas lecturas forman un patrón acumulativo, o Amarilla si es una desviación aislada
+async function registrarAlertaSiCorresponde(
+  loteId: number,
+  tarroId: number,
+  desviacionDeltaE: number
+) {
+  // Sin desviación fuera de tolerancia no hay alerta: no hace falta revisar el patrón
+  if (!obtenerNivelAlerta(desviacionDeltaE, false)) return;
+
+  const desviaciones = await buscarUltimasDesviacionesDeLote(loteId, LECTURAS_PATRON_ACUMULATIVO);
+  const nivel = obtenerNivelAlerta(desviacionDeltaE, formanPatronAcumulativo(desviaciones));
+  if (!nivel) return;
+
+  const alerta = construirAlerta(nivel, desviacionDeltaE);
+  await crearAlerta(tarroId, alerta.nivel, alerta.mensaje, alerta.congelaRegistro);
+  if (nivel === 'Roja') {
+    // Pausar también detiene la captura: el lote deja de recibir lecturas del sensor
+    await pausarLote(loteId);
+  }
 }

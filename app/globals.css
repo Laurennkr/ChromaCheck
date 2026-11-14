@@ -1,26 +1,72 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Variante `oscuro:` activa cuando <html> lleva data-tema="oscuro" (F7) */
+@custom-variant oscuro (&:where([data-tema='oscuro'], [data-tema='oscuro'] *));
+
+@theme {
+  /* Tokens de identidad-visual.md: valores del tema claro, el de por defecto */
+  --color-fondo: #f5f2ec;
+  --color-superficie: #fcfbf8;
+  --color-encabezado: #fcfbf8;
+  --color-texto: #34383d;
+  --color-texto-secundario: #42474e;
+  --color-borde: #898376;
+  --color-accion: #3d5266;
+  --color-texto-sobre-accion: #ffffff;
+  --color-aprobado: #155c33;
+  --color-texto-sobre-aprobado: #ffffff;
+  --color-aprobado-suave: #e3f4e8;
+  --color-texto-sobre-aprobado-suave: #14532d;
+  --color-alerta: #a38229;
+  --color-alerta-suave: #f5edd6;
+  --color-texto-sobre-alerta-suave: #5a4817;
+  --color-peligro: #8d312d;
+  --color-texto-sobre-peligro: #ffffff;
+
+  /* Inter 400 para texto y datos; Montserrat 600 y 700 para títulos, botones y etiquetas */
+  --font-texto: var(--font-inter), 'Inter', sans-serif;
+  --font-titulo: var(--font-montserrat), 'Montserrat', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Mismos tokens con los valores del tema oscuro */
+[data-tema='oscuro'] {
+  --color-fondo: #25282c;
+  --color-superficie: #34383d;
+  --color-encabezado: #25282c;
+  --color-texto: #f5f2ec;
+  --color-texto-secundario: #cbcfd3;
+  --color-borde: #8b8579;
+  --color-accion: #beccd8;
+  --color-texto-sobre-accion: #25282c;
+  --color-aprobado: #7ee2a8;
+  --color-texto-sobre-aprobado: #25282c;
+  --color-aprobado-suave: #12301f;
+  --color-texto-sobre-aprobado-suave: #a7f3c1;
+  --color-alerta: #cba334;
+  --color-alerta-suave: #413411;
+  --color-texto-sobre-alerta-suave: #e1ca8a;
+  --color-peligro: #ebc1bf;
+  --color-texto-sobre-peligro: #25282c;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+  font-family: var(--font-texto);
+}
+
+@layer base {
+  /* Títulos en Montserrat Bold; encabezados de tabla y etiquetas en Montserrat SemiBold */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-titulo);
+    font-weight: 700;
+  }
+
+  th,
+  label {
+    font-family: var(--font-titulo);
+    font-weight: 600;
+  }
 }
