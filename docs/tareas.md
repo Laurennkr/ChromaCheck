@@ -54,3 +54,12 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 - [x] 6.2 Excluir `logo-blanco.png` y `logo-negro.png` en el `matcher` de `proxy.ts` para que el logo se vea en `/login` sin sesión
 - [x] 6.3 Recortar `public/logo-negro.png` a la misma proporción que `logo-blanco.png` (1920 × 540) con `sharp` (ya viene con Next, sin dependencias nuevas) y dejarlo en 142 × 40 en `app/layout.tsx`
 - [x] 6.4 Selector "Fondo:" con los botones "Claro" y "Oscuro" en el encabezado (`app/componentes/SelectorTema.tsx`): "✓" y `aria-pressed` en el elegido, cookie `tema` por 1 año y cambio de `data-tema` sin recargar
+
+## 7. Corrección de marca (decisiones del 2026-11-14)
+
+- [x] 7.1 Documentación: principio "menos es más", marca, paleta cálida, tipografía Montserrat e Inter, cuadros sin borde y flujo "Agregar muestra" → "Iniciar recolección" en `diseno/identidad-visual.md`, F3, F4, F7, la skill `ui-componentes`, `decisiones.md` y `README.md`
+- [x] 7.2 Logos: sección "Archivos del logo" en `diseno/identidad-visual.md` (letras negras con fondo claro, letras blancas con fondo oscuro; la app usa `public/`; las fuentes originales van en `diseno/logos/negro/` y `diseno/logos/blanco/`). No había archivos de logo fuera de `public/` para mover
+- [ ] 7.3 Tokens cálidos y fuentes Montserrat e Inter en `app/globals.css` y `app/layout.tsx`
+- [ ] 7.4 `CuadroColor` sin borde y `Boton` en Montserrat SemiBold
+- [ ] 7.5 Flujo Agregar muestra e Iniciar recolección (`app/lotes/[id]`, `ControlCaptura`, `PantallaCaptura` y la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`)
+- [ ] 7.6 Verificación: prettier, lint, `jest --coverage` y build
