@@ -1,6 +1,7 @@
 import {
   crearMensajeOtroLoteCapturando,
   esModoCapturaValido,
+  necesitaMuestraPatron,
   obtenerMotivoRechazoModoCaptura,
   puedeRegistrarLectura,
   puedeRegistrarMuestra,
@@ -65,4 +66,28 @@ test('crearMensajeOtroLoteCapturando nombra el lote y su modo', () => {
   expect(crearMensajeOtroLoteCapturando('#001_Terracota', 'Muestra')).toBe(
     'El lote "#001_Terracota" ya está capturando en modo Muestra; detén esa captura antes de iniciar otra'
   );
+});
+
+describe('necesitaMuestraPatron', () => {
+  const activoInactivoSinMuestra = {
+    estado: 'Activo',
+    modoCaptura: 'Inactivo',
+    tieneMuestra: false,
+  } as const;
+
+  test('un lote Activo, en modo Inactivo y sin muestra necesita la muestra patrón', () => {
+    expect(necesitaMuestraPatron(activoInactivoSinMuestra)).toBe(true);
+  });
+
+  test('un lote que ya tiene muestra no la necesita', () => {
+    expect(necesitaMuestraPatron({ ...activoInactivoSinMuestra, tieneMuestra: true })).toBe(false);
+  });
+
+  test('un lote pausado no la pide', () => {
+    expect(necesitaMuestraPatron({ ...activoInactivoSinMuestra, estado: 'Pausado' })).toBe(false);
+  });
+
+  test.each(['Muestra', 'Recoleccion'] as const)('un lote en modo %s no la pide', (modo) => {
+    expect(necesitaMuestraPatron({ ...activoInactivoSinMuestra, modoCaptura: modo })).toBe(false);
+  });
 });

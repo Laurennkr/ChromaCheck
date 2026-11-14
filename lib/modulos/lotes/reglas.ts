@@ -52,3 +52,17 @@ export function obtenerMotivoRechazoModoCaptura(
 export function crearMensajeOtroLoteCapturando(codigo: string, modoCaptura: string): string {
   return `El lote "${codigo}" ya está capturando en modo ${modoCaptura}; detén esa captura antes de iniciar otra`;
 }
+
+// Indica si hay que pedir la muestra patrón al entrar al lote: el lote está Activo,
+// el sensor no captura para él y todavía no tiene muestra
+export function necesitaMuestraPatron(lote: {
+  estado: string;
+  modoCaptura: ModoCaptura;
+  tieneMuestra: boolean;
+}): boolean {
+  return (
+    lote.estado === ESTADO_LOTE_ACTIVO &&
+    lote.modoCaptura === MODO_CAPTURA_DETENIDO &&
+    !lote.tieneMuestra
+  );
+}
