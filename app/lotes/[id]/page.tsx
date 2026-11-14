@@ -38,7 +38,7 @@ export default async function PaginaLote({ params }: PageProps<'/lotes/[id]'>) {
           >
             ← Volver a lotes
           </Link>
-          <h1 className="text-3xl font-bold break-all">Lote {lote.codigo}</h1>
+          <h1 className="font-titulo text-3xl font-bold break-all">Lote {lote.codigo}</h1>
           <p className="mt-1 text-lg text-texto-secundario">
             {lote.estado}. {muestra ? 'Muestra patrón registrada.' : 'Sin muestra patrón.'}
           </p>
@@ -53,6 +53,7 @@ export default async function PaginaLote({ params }: PageProps<'/lotes/[id]'>) {
           estado={lote.estado}
           modoCaptura={lote.modo_captura}
           muestraHex={muestra?.resultado_hex ?? null}
+          ultimoTarro={lecturasRecientes[0] ?? null}
           capturaDeOtroLote={capturaDeOtroLote}
         />
 
@@ -90,7 +91,9 @@ async function cargarDatosLote(id: string) {
 function Recuadro({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <section className="overflow-hidden rounded-lg border-2 border-borde bg-superficie">
-      <h2 className="border-b-2 border-borde px-5 py-4 text-2xl font-bold">{titulo}</h2>
+      <h2 className="border-b-2 border-borde px-5 py-4 font-titulo text-2xl font-bold">
+        {titulo}
+      </h2>
       {children}
     </section>
   );
@@ -108,11 +111,11 @@ function ComparacionColores({
     <Recuadro titulo="Comparación de colores">
       <div className="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <p className="text-base font-bold">Muestra patrón</p>
+          <p className="font-titulo text-lg font-semibold">Muestra patrón</p>
           <CuadroColor hex={muestra?.resultado_hex ?? null} textoSinColor="Sin muestra patrón" />
         </div>
         <div className="space-y-2">
-          <p className="text-base font-bold">Último tarro</p>
+          <p className="font-titulo text-lg font-semibold">Último tarro</p>
           <CuadroColor
             hex={ultimoTarro?.resultado_hex ?? null}
             textoSinColor="Todavía no hay tarros revisados"
@@ -141,7 +144,7 @@ function TablaLecturasRecientes({ lecturas }: { lecturas: Tarro[] }) {
       {/* En pantallas angostas la tabla se desplaza dentro de su recuadro, no la página */}
       <div className="overflow-x-auto">
         <table className="w-full text-left text-lg">
-          <thead className="border-b-2 border-borde text-base font-bold">
+          <thead className="border-b-2 border-borde font-titulo text-lg font-semibold">
             <tr>
               <th className="px-5 py-3">Tarro</th>
               <th className="px-5 py-3">Color</th>
@@ -157,7 +160,7 @@ function TablaLecturasRecientes({ lecturas }: { lecturas: Tarro[] }) {
                 <td className="px-5 py-3">
                   <CuadroColor hex={tarro.resultado_hex} tamano="pequeno" />
                 </td>
-                <td className="px-5 py-3 font-bold tabular-nums">
+                <td className="px-5 py-3 font-titulo font-semibold tabular-nums">
                   {formatearDeltaE(tarro.desviacion_delta_e)}
                 </td>
                 <td className="px-5 py-3">
@@ -189,7 +192,7 @@ function TablaLecturasRecientes({ lecturas }: { lecturas: Tarro[] }) {
 function AvisoLotePausado({ alertaQuePauso }: { alertaQuePauso: AlertaLote | undefined }) {
   return (
     <div role="alert" className="space-y-2 rounded-lg bg-peligro p-5 text-texto-sobre-peligro">
-      <p className="text-2xl font-bold">
+      <p className="font-titulo text-2xl font-bold">
         <span aria-hidden="true">⚠ </span>Lote pausado: no acepta lecturas
       </p>
       {alertaQuePauso ? (
@@ -237,7 +240,7 @@ function ListaAlertas({ alertas }: { alertas: AlertaLote[] }) {
                 className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t-2 border-borde px-5 py-4 text-lg first:border-t-0"
               >
                 <span
-                  className={`rounded-lg border-2 px-3 py-1 font-bold whitespace-nowrap ${estilo.clases}`}
+                  className={`rounded-lg border-2 px-3 py-1 font-titulo font-semibold whitespace-nowrap ${estilo.clases}`}
                 >
                   <span aria-hidden="true">⚠ </span>
                   {estilo.texto}
@@ -245,7 +248,7 @@ function ListaAlertas({ alertas }: { alertas: AlertaLote[] }) {
                 <span className="min-w-48 flex-1">{alerta.mensaje}</span>
                 <time
                   dateTime={new Date(alerta.timestamp).toISOString()}
-                  className="text-base whitespace-nowrap text-texto-secundario"
+                  className="text-lg whitespace-nowrap text-texto-secundario"
                 >
                   {formatearFechaHora(alerta.timestamp)}
                 </time>

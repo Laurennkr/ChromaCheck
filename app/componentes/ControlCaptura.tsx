@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState, useTransition, type ReactNode, type Ref } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { formatearDeltaE } from '@/lib/formato';
 import { necesitaMuestraPatron, type ModoCaptura } from '@/lib/modulos/lotes/reglas';
+import type { Tarro } from '@/lib/modulos/tarros/repositorio';
 import Boton, { obtenerClasesBoton } from './Boton';
 import CuadroColor from './CuadroColor';
 import PantallaCaptura from './PantallaCaptura';
@@ -24,6 +26,8 @@ interface PropiedadesControlCaptura {
   modoCaptura: ModoCaptura;
   // Color de la muestra patrón; null si el lote todavía no tiene muestra
   muestraHex: string | null;
+  // Última lectura del lote (sin la muestra); null si todavía no hay tarros
+  ultimoTarro: Tarro | null;
   capturaDeOtroLote: CapturaDeOtroLote | null;
 }
 
@@ -35,6 +39,7 @@ export default function ControlCaptura({
   estado,
   modoCaptura,
   muestraHex,
+  ultimoTarro,
   capturaDeOtroLote,
 }: PropiedadesControlCaptura) {
   const { cambiarModo, mensajeError, estaEnviando } = useCambiarModo(loteId);
@@ -51,7 +56,8 @@ export default function ControlCaptura({
 
   const debePedirMuestra =
     necesitaMuestraPatron({ estado, modoCaptura, tieneMuestra }) && !seCerroEstadoA;
-  const estaPantallaAbierta = modoCaptura === 'Muestra' || debePedirMuestra;
+  // La pantalla completa está abierta mientras el sensor captura para este lote, o en el estado A
+  const estaPantallaAbierta = estaCapturando || debePedirMuestra;
   const errorEnPantalla = <MensajeError mensaje={mensajeError} />;
 
   return (
@@ -59,11 +65,10 @@ export default function ControlCaptura({
       {tieneMuestra ? (
         <VistaConMuestra
           muestraHex={muestraHex}
-          modoCaptura={modoCaptura}
           capturaDeOtroLote={capturaDeOtroLote}
           estaEnviando={estaEnviando}
           refAccion={refAccionPrincipal}
-          cambiarModo={cambiarModo}
+          iniciarRecoleccion={() => cambiarModo('Recoleccion')}
         />
       ) : (
         <VistaSinMuestra
@@ -77,31 +82,74 @@ export default function ControlCaptura({
 
       {estaPantallaAbierta && (
         <PantallaCaptura
-          titulo={`Lote ${codigo}`}
+          titulo={obtenerTituloPantalla(modoCaptura, codigo)}
           estaEnviando={estaEnviando}
           elementoFocoAlCerrar={refAccionPrincipal}
-          alCerrar={
-            modoCaptura === 'Muestra'
-              ? () => cambiarModo('Inactivo')
-              : () => setSeCerroEstadoA(true)
-          }
+          // Cerrar = detener la captura; en el estado A no hay captura que detener
+          alCerrar={estaCapturando ? () => cambiarModo('Inactivo') : () => setSeCerroEstadoA(true)}
         >
-          {modoCaptura === 'Muestra' ? (
-            <EstadoEsperandoMuestra
-              estaEnviando={estaEnviando}
-              cancelar={() => cambiarModo('Inactivo')}
-            />
-          ) : (
-            <EstadoSinMuestra
-              capturaDeOtroLote={capturaDeOtroLote}
-              estaEnviando={estaEnviando}
-              agregarMuestra={() => cambiarModo('Muestra')}
-            />
-          )}
+          <ContenidoPantalla
+            modoCaptura={modoCaptura}
+            muestraHex={muestraHex}
+            ultimoTarro={ultimoTarro}
+            capturaDeOtroLote={capturaDeOtroLote}
+            estaEnviando={estaEnviando}
+            cambiarModo={cambiarModo}
+          />
           {errorEnPantalla}
         </PantallaCaptura>
       )}
     </div>
+  );
+}
+
+// Texto de la franja de la pantalla completa; nunca muestra el valor interno 'Recoleccion'
+function obtenerTituloPantalla(modoCaptura: ModoCaptura, codigo: string) {
+  return modoCaptura === 'Recoleccion' ? `Recolección del lote ${codigo}` : `Lote ${codigo}`;
+}
+
+// Elige el contenido de la pantalla completa según el modo guardado en la base
+function ContenidoPantalla({
+  modoCaptura,
+  muestraHex,
+  ultimoTarro,
+  capturaDeOtroLote,
+  estaEnviando,
+  cambiarModo,
+}: {
+  modoCaptura: ModoCaptura;
+  muestraHex: string | null;
+  ultimoTarro: Tarro | null;
+  capturaDeOtroLote: CapturaDeOtroLote | null;
+  estaEnviando: boolean;
+  cambiarModo: (modo: ModoCaptura) => void;
+}) {
+  if (modoCaptura === 'Muestra') {
+    return (
+      <EstadoEsperandoMuestra
+        estaEnviando={estaEnviando}
+        cancelar={() => cambiarModo('Inactivo')}
+      />
+    );
+  }
+
+  if (modoCaptura === 'Recoleccion') {
+    return (
+      <EstadoRecoleccion
+        muestraHex={muestraHex}
+        ultimoTarro={ultimoTarro}
+        estaEnviando={estaEnviando}
+        terminar={() => cambiarModo('Inactivo')}
+      />
+    );
+  }
+
+  return (
+    <EstadoSinMuestra
+      capturaDeOtroLote={capturaDeOtroLote}
+      estaEnviando={estaEnviando}
+      agregarMuestra={() => cambiarModo('Muestra')}
+    />
   );
 }
 
@@ -240,46 +288,112 @@ function VistaSinMuestra({
   );
 }
 
+// Recolección: la muestra y el último tarro lado a lado, con el dictamen en grande
+function EstadoRecoleccion({
+  muestraHex,
+  ultimoTarro,
+  estaEnviando,
+  terminar,
+}: {
+  muestraHex: string | null;
+  ultimoTarro: Tarro | null;
+  estaEnviando: boolean;
+  terminar: () => void;
+}) {
+  return (
+    <>
+      <EstadoSensor texto="Recolectando tarros…" />
+      <div className="flex flex-wrap justify-center gap-8">
+        <ColorRotulado etiqueta="Muestra patrón" hex={muestraHex} />
+        <ColorRotulado etiqueta="Último tarro" hex={ultimoTarro?.resultado_hex ?? null} />
+      </div>
+      {/* Cada tarro nuevo se anuncia a los lectores de pantalla */}
+      <div aria-live="polite" className="flex flex-col items-center gap-4">
+        {ultimoTarro ? (
+          <DictamenTarro tarro={ultimoTarro} />
+        ) : (
+          <p className="text-lg">Esperando el primer tarro…</p>
+        )}
+      </div>
+      <Boton
+        variante="peligro"
+        esGrande
+        autoFocus
+        data-foco-inicial
+        className="font-titulo"
+        estaEnviando={estaEnviando}
+        textoEnviando="Terminando…"
+        onClick={terminar}
+      >
+        Terminar recolección
+      </Boton>
+    </>
+  );
+}
+
+// Cuadro de color de 160 px con su etiqueta encima y el hex debajo
+function ColorRotulado({ etiqueta, hex }: { etiqueta: string; hex: string | null }) {
+  return (
+    <div className="flex flex-col items-start gap-2 text-left">
+      <p className="font-titulo text-lg font-semibold">{etiqueta}</p>
+      <CuadroColor hex={hex} tamano="mediano" />
+    </div>
+  );
+}
+
+const DICTAMENES: Record<string, { simbolo: string; texto: string; clases: string }> = {
+  Aprobado: { simbolo: '✓', texto: 'Aprobado', clases: 'bg-aprobado text-texto-sobre-aprobado' },
+  'No Aprobado': {
+    simbolo: '✕',
+    texto: 'No aprobado',
+    clases: 'bg-peligro text-texto-sobre-peligro',
+  },
+};
+
+const DICTAMEN_SIN_CALCULAR = {
+  simbolo: '–',
+  texto: 'Sin calcular',
+  clases: 'border-2 border-borde text-texto-secundario',
+};
+
+// Dictamen del último tarro a 60 px (48 px en teléfonos), con símbolo y palabra, y su ΔE.
+// Sin ΔE no hay dictamen, igual que en InsigniaResultado
+function DictamenTarro({ tarro }: { tarro: Tarro }) {
+  const tieneDeltaE = tarro.desviacion_delta_e !== null;
+  const dictamen = (tieneDeltaE && DICTAMENES[tarro.resultado]) || DICTAMEN_SIN_CALCULAR;
+
+  return (
+    <>
+      <p
+        className={`rounded-lg px-6 py-2 font-titulo text-5xl font-bold sm:text-6xl ${dictamen.clases}`}
+      >
+        <span aria-hidden="true">{dictamen.simbolo} </span>
+        {dictamen.texto}
+      </p>
+      <p className="text-lg tabular-nums">
+        Diferencia de color: {formatearDeltaE(tarro.desviacion_delta_e)} ΔE
+      </p>
+    </>
+  );
+}
+
 // Pantalla del lote con la muestra guardada: su color y la acción "Iniciar recolección"
 function VistaConMuestra({
   muestraHex,
-  modoCaptura,
   capturaDeOtroLote,
   estaEnviando,
   refAccion,
-  cambiarModo,
+  iniciarRecoleccion,
 }: {
   muestraHex: string;
-  modoCaptura: ModoCaptura;
   capturaDeOtroLote: CapturaDeOtroLote | null;
   estaEnviando: boolean;
   refAccion: Ref<HTMLButtonElement>;
-  cambiarModo: (modo: ModoCaptura) => void;
+  iniciarRecoleccion: () => void;
 }) {
-  if (modoCaptura === 'Recoleccion') {
-    return (
-      <div className="space-y-4">
-        <EstadoSensor texto="Recolectando tarros…" />
-        <Boton
-          variante="peligro"
-          esGrande
-          className="font-titulo"
-          estaEnviando={estaEnviando}
-          textoEnviando="Terminando…"
-          onClick={() => cambiarModo('Inactivo')}
-        >
-          Terminar recolección
-        </Boton>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-start gap-4">
-      <div className="space-y-2">
-        <p className="font-titulo text-lg font-semibold">Muestra patrón</p>
-        <CuadroColor hex={muestraHex} tamano="mediano" />
-      </div>
+      <ColorRotulado etiqueta="Muestra patrón" hex={muestraHex} />
       <p
         role="status"
         className="rounded-lg bg-aprobado-suave px-4 py-2 font-titulo text-lg font-semibold text-texto-sobre-aprobado-suave"
@@ -290,7 +404,7 @@ function VistaConMuestra({
         ref={refAccion}
         estaDeshabilitado={Boolean(capturaDeOtroLote)}
         estaEnviando={estaEnviando}
-        onClick={() => cambiarModo('Recoleccion')}
+        onClick={iniciarRecoleccion}
       >
         Iniciar recolección
       </BotonAccionPrincipal>
