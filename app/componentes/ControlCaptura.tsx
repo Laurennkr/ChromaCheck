@@ -64,7 +64,6 @@ export default function ControlCaptura({
     <div className="space-y-4">
       {tieneMuestra ? (
         <VistaConMuestra
-          muestraHex={muestraHex}
           capturaDeOtroLote={capturaDeOtroLote}
           estaEnviando={estaEnviando}
           refAccion={refAccionPrincipal}
@@ -374,15 +373,14 @@ function DictamenTarro({ tarro }: { tarro: Tarro }) {
   );
 }
 
-// Pantalla del lote con la muestra guardada: su color y la acción "Iniciar recolección"
+// Pantalla del lote con la muestra guardada: la acción "Iniciar recolección".
+// El color de la muestra se ve una sola vez, en "Comparación de colores"
 function VistaConMuestra({
-  muestraHex,
   capturaDeOtroLote,
   estaEnviando,
   refAccion,
   iniciarRecoleccion,
 }: {
-  muestraHex: string;
   capturaDeOtroLote: CapturaDeOtroLote | null;
   estaEnviando: boolean;
   refAccion: Ref<HTMLButtonElement>;
@@ -390,13 +388,6 @@ function VistaConMuestra({
 }) {
   return (
     <div className="flex flex-col items-start gap-4">
-      <ColorRotulado etiqueta="Muestra patrón" hex={muestraHex} />
-      <p
-        role="status"
-        className="rounded-lg bg-aprobado-suave px-4 py-2 font-titulo text-lg font-semibold text-texto-sobre-aprobado-suave"
-      >
-        <span aria-hidden="true">✓ </span>Muestra patrón guardada
-      </p>
       <BotonAccionPrincipal
         ref={refAccion}
         estaDeshabilitado={Boolean(capturaDeOtroLote)}

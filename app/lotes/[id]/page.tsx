@@ -111,6 +111,14 @@ function ComparacionColores({
         <div className="space-y-2">
           <p className="font-titulo text-lg font-semibold">Muestra patrón</p>
           <CuadroColor hex={muestra?.resultado_hex ?? null} textoSinColor="Sin muestra patrón" />
+          {muestra && (
+            <p
+              role="status"
+              className="w-fit rounded-lg bg-aprobado-suave px-4 py-2 font-titulo text-lg font-semibold text-texto-sobre-aprobado-suave"
+            >
+              <span aria-hidden="true">✓ </span>Muestra patrón guardada
+            </p>
+          )}
         </div>
         <div className="space-y-2">
           <p className="font-titulo text-lg font-semibold">Último tarro</p>
