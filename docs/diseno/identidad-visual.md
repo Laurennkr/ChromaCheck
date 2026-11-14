@@ -211,7 +211,7 @@ Al pulsar "Agregar muestra", el lote pasa a modo `Muestra`.
 └───────────────────────────────────────────────────────────────┘
 ```
 
-- "Cancelar", "✕ Cerrar" y Esc hacen lo mismo: devuelven el lote a `Inactivo` y cierran la pantalla.
+- "Cancelar", "✕ Cerrar" y Esc hacen lo mismo: devuelven el lote a `Inactivo` y la pantalla vuelve al Estado A, sin cerrarse.
 
 ### Muestra guardada
 
@@ -264,20 +264,20 @@ Al pulsar "Iniciar recolección", el lote pasa a modo `Recoleccion` y se abre la
 
 ### Resumen de estados
 
-| Estado                       | Franja | Título                                 | Botón                                    |
-| ---------------------------- | ------ | -------------------------------------- | ---------------------------------------- |
-| A · Sin muestra              | Azul   | Agregue la muestra patrón de este lote | Agregar muestra                          |
-| B · Esperando la muestra     | Azul   | Coloque la muestra en el sensor        | Cancelar                                 |
-| Recolección, último aprobado | Azul   | Recolección del lote …                 | Terminar recolección                     |
-| Último con alerta amarilla   | Dorado | ⚠ Alerta amarilla: desviación aislada  | Terminar recolección                     |
-| Lote pausado (alerta roja)   | Rojo   | ⚠ Lote pausado                         | Reanudar revisión y Entendido, a los 5 s |
+| Estado                       | Franja | Título                                 | Botón                                       |
+| ---------------------------- | ------ | -------------------------------------- | ------------------------------------------- |
+| A · Sin muestra              | Azul   | Agregue la muestra patrón de este lote | Agregar muestra                             |
+| B · Esperando la muestra     | Azul   | Coloque la muestra en el sensor        | Cancelar                                    |
+| Recolección, último aprobado | Azul   | Recolección del lote …                 | Terminar recolección                        |
+| Último con alerta amarilla   | Dorado | ⚠ Alerta amarilla: desviación aislada  | Terminar recolección                        |
+| Lote pausado (alerta roja)   | Rojo   | ⚠ Lote pausado                         | Reanudar recolección y Entendido, a los 5 s |
 
 Reglas:
 
 - Cubre toda la pantalla con fondo opaco `superficie`; no es una ventanita que se pierde.
 - Se abre sola en el estado A; en los demás casos se abre cuando el usuario pulsa el botón, o al recargar la página si el lote ya estaba capturando: lo que se ve depende del modo guardado en la base.
 - Se cierra con un botón con texto o con la tecla Esc. La única vez que se cierra sola es al guardarse la muestra patrón.
-- Con el lote pausado, durante los primeros 5 segundos no hay botones y Esc no hace nada: el operario lee el motivo. Después aparecen "Reanudar revisión" (principal) y "Entendido" (secundario).
+- Con el lote pausado, durante los primeros 5 segundos no hay botones y Esc no hace nada: el operario lee el motivo. Después aparecen "Reanudar recolección" (principal) y "Entendido" (secundario).
 - Cerrar = detener la captura (en el estado A no hay captura que detener). Si la pantalla completa está cerrada, el sensor no está capturando para ese lote.
 - Al cerrar, el foco vuelve al botón principal de la pantalla del lote.
 - Mientras está abierta, el encabezado y la navegación no se ven.

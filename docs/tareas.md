@@ -28,14 +28,14 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 
 ## 3. Pantalla completa de captura (F3, F4, F5)
 
-- [ ] 3.1 Componente `PantallaCaptura` (`app/componentes/PantallaCaptura.tsx`): diálogo a pantalla completa, opaco, con `role="dialog"`, Esc y foco de vuelta al botón que la abrió
-- [ ] 3.2 F3 · Estado "Esperando la muestra" con "Cancelar"; se abre al pulsar "Tomar muestra patrón" o al recargar con el lote en modo `Muestra`
+- [x] 3.1 Componente `PantallaCaptura` (`app/componentes/PantallaCaptura.tsx`): diálogo a pantalla completa, opaco, con `role="dialog"`, Esc y foco de vuelta al botón que la abrió
+- [x] 3.2 F3 · Estado "Esperando la muestra" con "Cancelar"; se abre al pulsar "Agregar muestra" o al recargar con el lote en modo `Muestra`
 - [ ] 3.3 F3 · Estado "Muestra patrón guardada" con el color y "Continuar"
-- [ ] 3.4 F4 · Estado "Revisando tarros": muestra patrón y último tarro, dictamen de 60 px, ΔE y contador
+- [ ] 3.4 F4 · Estado "Recolectando tarros": muestra patrón y último tarro, dictamen de 60 px, ΔE y contador
 - [ ] 3.5 F5 · `POST /api/lotes/[id]/reanudar`: regla en `lib/modulos/lotes/reglas.ts`, servicio, repositorio (lote a `Activo` y `Recoleccion` en la misma sentencia) y pruebas; actualizar `contratos/api.md`
 - [ ] 3.6 F5 · Estados de alerta amarilla (dorado) y lote pausado (rojo): 5 segundos sin botones y después "Reanudar revisión" y "Entendido"
 - [ ] 3.7 F5 · "Reanudar revisión" como acción principal en la pantalla de un lote pausado
-- [ ] 3.8 Reemplazar `ControlCaptura` por el botón principal + `PantallaCaptura` en `app/lotes/[id]/page.tsx`; ocultar el encabezado mientras está abierta
+- [x] 3.8 Reemplazar `ControlCaptura` por el botón principal + `PantallaCaptura` en `app/lotes/[id]/page.tsx`; ocultar el encabezado mientras está abierta
 - [ ] 3.9 Actualizar los textos de los botones en `README.md` y pedir a Michael que los actualice en `puente-serial/README.md`
 - [ ] 3.10 Prueba rápida con dos personas del taller: que tomen la muestra y revisen 3 tarros sin ayuda (ensayo de ACQ-01); anotar lo que no entendieron
 
@@ -59,7 +59,7 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 
 - [x] 7.1 Documentación: principio "menos es más", marca, paleta cálida, tipografía Montserrat e Inter, cuadros sin borde y flujo "Agregar muestra" → "Iniciar recolección" en `diseno/identidad-visual.md`, F3, F4, F7, la skill `ui-componentes`, `decisiones.md` y `README.md`
 - [x] 7.2 Logos: sección "Archivos del logo" en `diseno/identidad-visual.md` (letras negras con fondo claro, letras blancas con fondo oscuro; la app usa `public/`; las fuentes originales van en `diseno/logos/negro/` y `diseno/logos/blanco/`). No había archivos de logo fuera de `public/` para mover
-- [ ] 7.3 Tokens cálidos y fuentes Montserrat e Inter en `app/globals.css` y `app/layout.tsx`
-- [ ] 7.4 `CuadroColor` sin borde y `Boton` en Montserrat SemiBold
+- [x] 7.3 Tokens cálidos y fuentes Montserrat e Inter en `app/globals.css` y `app/layout.tsx`
+- [x] 7.4 `CuadroColor` sin borde y `Boton` en Montserrat SemiBold
 - [x] 7.5 Flujo Agregar muestra e Iniciar recolección (`app/lotes/[id]`, `ControlCaptura`, `PantallaCaptura` y la regla `necesitaMuestraPatron` en `lib/modulos/lotes/reglas.ts`)
-- [ ] 7.6 Verificación: prettier, lint, `jest --coverage` y build
+- [x] 7.6 Verificación: prettier, lint, `jest --coverage` y build. Verificado el 14/11/2026: prettier, lint sin problemas, tsc sin errores, Jest 137/137, cobertura de lib/modulos 100 % de líneas y 98,94 % de ramas, build correcto.
