@@ -38,7 +38,7 @@ Pendientes (flujo "Agregar muestra"):
 - [x] Al pulsar "Agregar muestra", el lote pasa a modo `Muestra` y la pantalla dice "Coloque la muestra en el sensor", "● Esperando la muestra…" y "Cancelar".
 - [x] En el estado B, "Cancelar", "✕ Cerrar" y Esc devuelven el lote a `Inactivo`.
 - [x] Al guardarse la muestra, la pantalla completa se cierra sola, el lote muestra el color con "✓ Muestra patrón guardada" y la acción principal es "Iniciar recolección".
-- [ ] El cuadro de la muestra no tiene borde y su código hex va debajo.
+- [x] El cuadro de la muestra no tiene borde y su código hex va debajo.
 - [x] La pantalla completa cubre todo el viewport con fondo opaco; mientras está abierta no se puede usar lo que hay detrás.
 - [x] Título de 48 px, una sola instrucción y botones de 72 px de alto.
 - [x] Al cerrarla, el foco vuelve al botón principal de la pantalla del lote.

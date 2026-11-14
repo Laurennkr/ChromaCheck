@@ -36,7 +36,7 @@ Pendientes (flujo "Iniciar recolección"):
 - [x] La pantalla completa cumple las mismas reglas de F3 (opaca, 48 px, botones de 72 px, Esc, foco de vuelta, abierta al recargar si el lote está en `Recoleccion`).
 - [x] Antes del primer tarro dice "Esperando el primer tarro…".
 - [x] El dictamen del último tarro se ve a 60 px; el ΔE como "Diferencia de color: 3,42 ΔE".
-- [ ] Los cuadros de color miden al menos 160 × 160 px, sin borde, y el código hex va debajo.
+- [x] Los cuadros de color miden al menos 160 × 160 px, sin borde, y el código hex va debajo.
 - [ ] El contador dice "Tarros revisados: N. No aprobados: M" y se actualiza con cada lectura.
 - [x] Un tarro nuevo se anuncia a los lectores de pantalla (`aria-live="polite"`).
 
