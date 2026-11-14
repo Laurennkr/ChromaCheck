@@ -64,7 +64,7 @@ export default function PantallaCaptura({
       aria-modal="true"
       aria-labelledby={idTitulo}
       onCancel={cancelarConEsc}
-      className="fixed inset-0 m-0 flex h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-superficie p-0 text-texto opacity-100 transition-opacity duration-150 backdrop:bg-superficie motion-reduce:transition-none starting:opacity-0"
+      className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-superficie p-0 text-texto opacity-100 open:flex transition-opacity duration-150 backdrop:bg-superficie motion-reduce:transition-none starting:opacity-0"
     >
       <div className="flex flex-wrap items-center justify-between gap-4 bg-accion px-4 py-3 text-texto-sobre-accion sm:px-8">
         <h2 id={idTitulo} className="font-titulo text-2xl font-bold break-all">
