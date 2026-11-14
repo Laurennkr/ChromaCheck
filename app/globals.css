@@ -23,7 +23,9 @@
   --color-peligro: #8d312d;
   --color-texto-sobre-peligro: #ffffff;
 
-  --font-texto: var(--font-atkinson), 'Atkinson Hyperlegible Next', sans-serif;
+  /* Inter 400 para texto y datos; Montserrat 600 y 700 para títulos, botones y etiquetas */
+  --font-texto: var(--font-inter), 'Inter', sans-serif;
+  --font-titulo: var(--font-montserrat), 'Montserrat', sans-serif;
 }
 
 /* Mismos tokens con los valores del tema oscuro */
@@ -51,4 +53,20 @@ body {
   background: var(--color-fondo);
   color: var(--color-texto);
   font-family: var(--font-texto);
+}
+
+@layer base {
+  /* Títulos en Montserrat Bold; encabezados de tabla y etiquetas en Montserrat SemiBold */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-titulo);
+    font-weight: 700;
+  }
+
+  th,
+  label {
+    font-family: var(--font-titulo);
+    font-weight: 600;
+  }
 }
