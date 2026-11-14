@@ -46,7 +46,7 @@ Migración visual (rama `feature/migracion-visual`), en este orden: 2.1 → 6.3 
 ## 5. Deuda técnica encontrada
 
 - [ ] 5.1 `lib/modulos/auth/servicio.ts` hace SQL: mover las consultas a `lib/modulos/auth/repositorio.ts`
-- [ ] 5.2 Proteger `POST /api/tarros` y `GET /api/captura/activa` con una clave compartida del puente (encabezado + variable de entorno); se hace en la tarea 8.4
+- [x] 5.2 Proteger `POST /api/tarros` y `GET /api/captura/activa` con una clave compartida del puente (encabezado + variable de entorno); se hace en la tarea 8.4
 
 ## 6. Fondo claro u oscuro (F7)
 
@@ -71,4 +71,4 @@ Ver [operacion/despliegue.md](operacion/despliegue.md).
 - [x] 8.1 Action `calidad` en `.github/workflows/calidad.yml`
 - [ ] 8.2 Conectar Vercel al repo y configurar las variables
 - [ ] 8.3 Exigir el check `calidad` en `development` y `main`
-- [ ] 8.4 Clave de dispositivo en `/api/**` antes de fusionar en `main`; incluye la tarea 5.2
+- [x] 8.4 Clave de dispositivo en `/api/**` antes de fusionar en `main`; incluye la tarea 5.2

@@ -11,7 +11,7 @@
 - Las ramas nuevas son `feature/**` y salen de `development` actualizado (`git switch development`, `git pull`).
 - La historia debe ser lineal: `development` no acepta commits de merge. Para traer cambios, usar rebase o cherry-pick, nunca merge.
 - Commits pequeños con Conventional Commits en imperativo: `tipo(alcance): descripción`.
-- Los PR van a `development` con revisor `michaelarias25`: `gh pr create --base development --reviewer michaelarias25`.
+- Los PR van a development y se abren desde el navegador (gh no está instalado); la aprobación y la fusión las hace Lauren.
 - Sin atribución de IA en commits ni en PR: nada de `Co-Authored-By` ni "Generated with Claude Code".
 - Nunca aprobar ni fusionar PR: la aprobación y la fusión las hace Lauren.
 - Nunca hacer push a `main` ni force-push.
