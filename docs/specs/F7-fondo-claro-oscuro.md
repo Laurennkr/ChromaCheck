@@ -38,7 +38,7 @@ Estado:
 - [x] Al recargar, no aparece el logo del otro tema ni por un instante.
 - [x] En `/login`, sin sesión, el logo se ve en los dos temas (no aparece una imagen rota).
 - [x] El cuadro de color de un tarro muestra el mismo hex en los dos temas.
-- [ ] El cuadro de color no tiene borde en ninguno de los dos temas; su código hex, debajo, lo identifica aunque el color se parezca al fondo.
+- [x] El cuadro de color no tiene borde en ninguno de los dos temas; su código hex, debajo, lo identifica aunque el color se parezca al fondo.
 - [ ] Con la herramienta de contraste del navegador, todo el texto da 7:1 o más en los dos temas.
 - [ ] A 390 px de ancho, el control no se corta ni provoca desplazamiento horizontal.
 

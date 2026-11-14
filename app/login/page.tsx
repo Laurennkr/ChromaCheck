@@ -54,7 +54,7 @@ export default function PaginaLogin() {
         <h1 className="text-3xl font-bold">Iniciar sesión</h1>
 
         <div className="space-y-2">
-          <label htmlFor="usuario" className="block text-base font-bold">
+          <label htmlFor="usuario" className="block font-titulo text-base font-semibold">
             Usuario
           </label>
           <input
@@ -69,7 +69,7 @@ export default function PaginaLogin() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="contrasena" className="block text-base font-bold">
+          <label htmlFor="contrasena" className="block font-titulo text-base font-semibold">
             Contraseña
           </label>
           <input

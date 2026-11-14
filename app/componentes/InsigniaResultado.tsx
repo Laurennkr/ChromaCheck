@@ -47,7 +47,7 @@ export default function InsigniaResultado({
 
   return (
     <span
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border-2 text-lg font-bold whitespace-nowrap ${estilo.clases}`}
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg border-2 font-titulo text-lg font-semibold whitespace-nowrap ${estilo.clases}`}
     >
       <span aria-hidden="true">{estilo.simbolo}</span>
       {estilo.texto}

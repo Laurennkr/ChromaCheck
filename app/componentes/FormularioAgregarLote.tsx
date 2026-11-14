@@ -63,7 +63,7 @@ export default function FormularioAgregarLote() {
       className="w-full max-w-md space-y-4 rounded-lg border-2 border-borde bg-superficie p-6"
     >
       <div className="space-y-2">
-        <label htmlFor="codigo-lote" className="block text-base font-bold">
+        <label htmlFor="codigo-lote" className="block font-titulo text-base font-semibold">
           Código del lote
         </label>
         <input
