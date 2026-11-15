@@ -26,6 +26,12 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
      ```
 
+   - `CLAVE_DISPOSITIVO`: la clave con la que el puente serial entra a la API, de mínimo 32 caracteres. Sin ella la API rechaza al puente con `401`. En local basta una clave propia; solo debe coincidir con la de Vercel si el puente apunta a Vercel (ver [docs/operacion/despliegue.md](docs/operacion/despliegue.md#clave-del-dispositivo)). Para generar una:
+
+     ```bash
+     node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+     ```
+
    El archivo `.env.local` no se sube al repositorio.
 
 3. Iniciar el servidor de desarrollo:
