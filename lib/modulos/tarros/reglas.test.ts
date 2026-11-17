@@ -4,14 +4,26 @@ import {
   convertirHexARgb,
   convertirRgbALab,
   crearMensajeSinModoMuestra,
+  esDesviacionGrave,
   excedeToleranciaDeltaE,
   formanPatronAcumulativo,
+  obtenerCausaAlerta,
   obtenerMotivoRechazoLectura,
   obtenerMotivoRechazoMuestra,
   obtenerNivelAlerta,
   obtenerResultadoLectura,
+  sonLecturasRepetidasFueraDeTolerancia,
+  UMBRAL_ALERTA_ROJA_DELTA_E,
   UMBRAL_TOLERANCIA_DELTA_E,
 } from './reglas';
+
+// Causa y nivel de la alerta de la última lectura de una secuencia (de la más antigua a la más
+// reciente), como la decide el servicio con las lecturas del lote
+function evaluarUltimaLectura(desviacionesCronologicas: number[]) {
+  const ultima = desviacionesCronologicas[desviacionesCronologicas.length - 1];
+  const causa = obtenerCausaAlerta(ultima, desviacionesCronologicas);
+  return { causa, nivel: causa ? obtenerNivelAlerta(causa) : null };
+}
 
 // Margen aceptado entre el deltaE calculado y el documentado en CP-03
 const MARGEN_DELTA_E = 0.5;
@@ -21,7 +33,7 @@ describe('casos de prueba documentados (CP)', () => {
     const desviacion = calcularDesviacionDeltaE([120, 80, 200], [120, 88, 195]);
     expect(desviacion).toBe(8);
     expect(obtenerResultadoLectura(desviacion)).toBe('Aprobado');
-    expect(obtenerNivelAlerta(desviacion, false)).toBeNull();
+    expect(obtenerCausaAlerta(desviacion, [desviacion])).toBeNull();
   });
 
   test('CP-02: lectura (120,73,207) da ΔE 8,01 y no se aprueba', () => {
@@ -43,15 +55,13 @@ describe('casos de prueba documentados (CP)', () => {
   );
 
   test('CP-04: ΔE 3,0 → 5,5 → 8,5 forma un patrón acumulativo y da alerta Roja', () => {
-    const esPatron = formanPatronAcumulativo([3.0, 5.5, 8.5]);
-    expect(esPatron).toBe(true);
-    expect(obtenerNivelAlerta(8.5, esPatron)).toBe('Roja');
+    expect(formanPatronAcumulativo([3.0, 5.5, 8.5])).toBe(true);
+    expect(evaluarUltimaLectura([3.0, 5.5, 8.5])).toEqual({ causa: 'acumulativa', nivel: 'Roja' });
   });
 
   test('CP-05: ΔE 3,0 → 3,0 → 8,5 no forma patrón y da solo alerta Amarilla', () => {
-    const esPatron = formanPatronAcumulativo([3.0, 3.0, 8.5]);
-    expect(esPatron).toBe(false);
-    expect(obtenerNivelAlerta(8.5, esPatron)).toBe('Amarilla');
+    expect(formanPatronAcumulativo([3.0, 3.0, 8.5])).toBe(false);
+    expect(evaluarUltimaLectura([3.0, 3.0, 8.5])).toEqual({ causa: 'aislada', nivel: 'Amarilla' });
   });
 });
 
@@ -121,17 +131,103 @@ describe('formanPatronAcumulativo', () => {
   });
 });
 
+describe('esDesviacionGrave (umbral rojo 15)', () => {
+  test('el umbral rojo es 15', () => {
+    expect(UMBRAL_ALERTA_ROJA_DELTA_E).toBe(15);
+  });
+
+  test('14,99 no es grave; 15,00 sí', () => {
+    expect(esDesviacionGrave(14.99)).toBe(false);
+    expect(esDesviacionGrave(15)).toBe(true);
+  });
+});
+
+describe('sonLecturasRepetidasFueraDeTolerancia', () => {
+  test('con menos de 3 lecturas no hay repetición', () => {
+    expect(sonLecturasRepetidasFueraDeTolerancia([9, 10])).toBe(false);
+  });
+
+  test('3 lecturas fuera de tolerancia, aunque bajen o sean iguales, se repiten', () => {
+    expect(sonLecturasRepetidasFueraDeTolerancia([12, 9, 10])).toBe(true);
+    expect(sonLecturasRepetidasFueraDeTolerancia([9, 9, 9])).toBe(true);
+  });
+
+  test('una lectura en tolerancia en medio corta la repetición', () => {
+    expect(sonLecturasRepetidasFueraDeTolerancia([9, 3, 10])).toBe(false);
+  });
+
+  test('solo cuentan las 3 lecturas más recientes', () => {
+    expect(sonLecturasRepetidasFueraDeTolerancia([3, 9, 9, 9])).toBe(true);
+    expect(sonLecturasRepetidasFueraDeTolerancia([9, 9, 3, 9])).toBe(false);
+  });
+});
+
+describe('alerta de la última lectura (tabla de decisión de F5)', () => {
+  test.each([
+    { desviaciones: [8], causa: null, nivel: null },
+    { desviaciones: [8.01], causa: 'aislada', nivel: 'Amarilla' },
+    { desviaciones: [14.99], causa: 'aislada', nivel: 'Amarilla' },
+    { desviaciones: [15], causa: 'grave', nivel: 'Roja' },
+    { desviaciones: [20], causa: 'grave', nivel: 'Roja' },
+  ] as const)('una lectura con ΔE $desviaciones da $nivel', ({ desviaciones, causa, nivel }) => {
+    expect(evaluarUltimaLectura([...desviaciones])).toEqual({ causa, nivel });
+  });
+
+  test.each([
+    // Antes: Amarilla, porque no eran estrictamente crecientes. 16 ≥ 15 ya es grave por sí sola
+    { desviaciones: [16, 16, 16], causa: 'grave', nivel: 'Roja' },
+    { desviaciones: [9, 20], causa: 'grave', nivel: 'Roja' },
+    { desviaciones: [9, 3, 10], causa: 'aislada', nivel: 'Amarilla' },
+    { desviaciones: [2, 5, 9], causa: 'acumulativa', nivel: 'Roja' },
+    // Antes: Amarilla. Tres seguidas fuera de tolerancia, aunque suban y bajen
+    { desviaciones: [12, 9, 10], causa: 'repetida', nivel: 'Roja' },
+    { desviaciones: [9, 9, 9], causa: 'repetida', nivel: 'Roja' },
+  ] as const)('la última de $desviaciones da $nivel ($causa)', ({ desviaciones, causa, nivel }) => {
+    expect(evaluarUltimaLectura([...desviaciones])).toEqual({ causa, nivel });
+  });
+
+  test('si aplican varias causas de Roja gana la más grave: grave > repetida > acumulativa', () => {
+    // Crecientes y las 3 fuera de tolerancia: repetida le gana a acumulativa
+    expect(evaluarUltimaLectura([9, 10, 11]).causa).toBe('repetida');
+    // Además la última ≥ 15: grave le gana a las dos
+    expect(evaluarUltimaLectura([9, 10, 16]).causa).toBe('grave');
+  });
+
+  test('una lectura en tolerancia no da alerta aunque las anteriores estén fuera', () => {
+    expect(evaluarUltimaLectura([16, 16, 8])).toEqual({ causa: null, nivel: null });
+  });
+});
+
 describe('construirAlerta', () => {
-  test('la Roja congela el registro y avisa del patrón acumulativo', () => {
-    expect(construirAlerta('Roja', 8.5)).toEqual({
+  test.each([
+    {
+      causa: 'grave',
+      deltaE: 20,
+      mensaje: 'Desviación grave de 20 ΔE (límite 15)',
       nivel: 'Roja',
+    },
+    {
+      causa: 'repetida',
+      deltaE: 10,
+      mensaje: 'Desviación repetida: 3 lecturas seguidas fuera de tolerancia',
+      nivel: 'Roja',
+    },
+    {
+      causa: 'acumulativa',
+      deltaE: 8.5,
       mensaje: 'Desviación acumulativa detectada: revisar mezclador o posibles fugas',
+      nivel: 'Roja',
+    },
+  ] as const)('la causa $causa da Roja, congela el registro y su mensaje', (caso) => {
+    expect(construirAlerta(caso.causa, caso.deltaE)).toEqual({
+      nivel: caso.nivel,
+      mensaje: caso.mensaje,
       congelaRegistro: true,
     });
   });
 
-  test('la Amarilla no congela e incluye el deltaE', () => {
-    expect(construirAlerta('Amarilla', 8.5)).toEqual({
+  test('la aislada da Amarilla, no congela e incluye el deltaE', () => {
+    expect(construirAlerta('aislada', 8.5)).toEqual({
       nivel: 'Amarilla',
       mensaje: 'Desviación aislada de 8.5 ΔE',
       congelaRegistro: false,

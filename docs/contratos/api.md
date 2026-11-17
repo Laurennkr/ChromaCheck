@@ -13,12 +13,12 @@ Los errores 500 responden siempre `"Error interno del servidor"`; el detalle que
 
 `proxy.ts` revisa cada petición a `/api` antes de que llegue a la ruta. La web entra con la cookie `sesion` y el puente serial con la clave del dispositivo, que envía en el encabezado `x-clave-dispositivo` (ver [autenticacion.md](autenticacion.md#clave-del-dispositivo)).
 
-| Ruta                                                | Acceso                         |
-| --------------------------------------------------- | ------------------------------ |
-| `/api/auth/*` (login y logout)                      | Libre                          |
-| `POST /api/tarros` y `GET /api/captura/activa`      | Sesión o clave del dispositivo |
-| `GET /api/lotes` y `GET /api/tarros`                | Sesión o clave del dispositivo |
-| `POST /api/lotes` y `PATCH /api/lotes/[id]/captura` | Sesión                         |
+| Ruta                                                                                 | Acceso                         |
+| ------------------------------------------------------------------------------------ | ------------------------------ |
+| `/api/auth/*` (login y logout)                                                       | Libre                          |
+| `POST /api/tarros` y `GET /api/captura/activa`                                       | Sesión o clave del dispositivo |
+| `GET /api/lotes` y `GET /api/tarros`                                                 | Sesión o clave del dispositivo |
+| `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` | Sesión                         |
 
 Sin sesión válida ni clave correcta, cualquier ruta fuera de `/api/auth/*` responde `401`:
 
@@ -26,7 +26,7 @@ Sin sesión válida ni clave correcta, cualquier ruta fuera de `/api/auth/*` res
 { "exito": false, "error": "Inicie sesión o envíe la clave del dispositivo" }
 ```
 
-`POST /api/lotes` y `PATCH /api/lotes/[id]/captura` además exigen la sesión en su propia ruta: con la clave del dispositivo y sin sesión responden `401`.
+`POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` además exigen la sesión en su propia ruta: con la clave del dispositivo y sin sesión responden `401`.
 
 ## Lotes
 
@@ -93,17 +93,34 @@ Cambia el modo de captura del lote. La usa solo la web, por eso exige la cookie 
 
 ### `POST /api/lotes/[id]/reanudar`
 
-**Pendiente de implementar** (tarea 3.5 de [tareas.md](../tareas.md)). Reanuda un lote `Pausado` por una alerta roja: en la misma sentencia pasa `estado` a `Activo` y `modo_captura` a `Recoleccion`, para que la revisión siga sin otro clic (ver [F5](../specs/F5-alertas-y-pausa.md)). La usa solo la web, por eso exige la cookie `sesion`. No lleva cuerpo.
+Reanuda un lote `Pausado` por una alerta roja: en la misma sentencia pasa `estado` a `Activo` y `modo_captura` a `Recoleccion`, para que la revisión siga sin otro clic (ver [F5](../specs/F5-alertas-y-pausa.md)). La usa solo la web, por eso exige la cookie `sesion`. No lleva cuerpo.
 
-Las alertas y las lecturas anteriores se conservan. Si la desviación sigue en aumento, la siguiente lectura vuelve a pausar el lote.
+Respuesta `200`: el lote actualizado.
 
-| Código | Caso                                                  |
-| ------ | ----------------------------------------------------- |
-| 200    | Lote reanudado; devuelve el lote actualizado          |
-| 400    | El id no es un entero positivo                        |
-| 401    | No hay sesión válida                                  |
-| 404    | El lote no existe                                     |
-| 409    | El lote no está `Pausado` u otro lote está capturando |
+```json
+{
+  "exito": true,
+  "datos": {
+    "id": 1,
+    "codigo": "#001_Terracota",
+    "estado": "Activo",
+    "modo_captura": "Recoleccion",
+    "fecha_inicio": "2026-11-16T15:00:00.000Z"
+  }
+}
+```
+
+Las alertas y las lecturas anteriores se conservan, pero las reglas de lecturas repetidas y crecientes solo cuentan las lecturas posteriores a la última alerta roja: después de reanudar, la cuenta empieza de nuevo. Una lectura con ΔE de 15,0 o más vuelve a pausar el lote de inmediato.
+
+Si el índice `lotes_un_lote_capturando` rechaza la sentencia porque otro lote empezó a capturar al mismo tiempo, la API responde `409` con el mensaje de sensor ocupado.
+
+| Código | Caso                                                                          |
+| ------ | ----------------------------------------------------------------------------- |
+| 200    | Lote reanudado; devuelve el lote actualizado                                  |
+| 400    | El id no es un entero positivo                                                |
+| 401    | No hay sesión válida                                                          |
+| 404    | El lote no existe                                                             |
+| 409    | El lote no está `Pausado`, u otro lote está capturando (el mensaje dice cuál) |
 
 ### `GET /api/captura/activa`
 

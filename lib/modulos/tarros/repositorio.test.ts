@@ -55,6 +55,15 @@ test('buscarUltimasDesviacionesDeLote convierte a número y ordena de la más an
   ]);
   expect(await buscarUltimasDesviacionesDeLote(1, 3)).toEqual([0.3, 0.9, 1.3]);
   expect(consulta).toHaveBeenCalledWith(expect.stringContaining('LIMIT $2'), [1, 3]);
+  // Con el mismo timestamp, el id_tarro mayor es la lectura más reciente
+  expect(consulta).toHaveBeenCalledWith(
+    expect.stringContaining('ORDER BY t.timestamp DESC, t.id_tarro DESC'),
+    [1, 3]
+  );
+  // Solo cuenta las lecturas posteriores al tarro de la última alerta roja del lote
+  const [sql] = consulta.mock.calls[0] as [string];
+  expect(sql).toMatch(/t\.id_tarro > COALESCE\(\s*\(SELECT MAX\(a\.tarro_id\) FROM alertas a/);
+  expect(sql).toContain("a.nivel = 'Roja'");
 });
 
 test('contarLecturas convierte el total a número', async () => {

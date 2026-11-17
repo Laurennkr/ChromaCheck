@@ -60,7 +60,7 @@ Reglas que garantiza la base:
 ## Seguridad
 
 - `proxy.ts` exige la cookie `sesion` (firmada con `AUTH_SECRET`) en todas las páginas; las rutas `/api/**` no pasan por él.
-- `POST /api/lotes` y `PATCH /api/lotes/[id]/captura` verifican la sesión por su cuenta.
+- `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` verifican la sesión por su cuenta.
 - `POST /api/tarros` y `GET /api/captura/activa` quedan abiertas para el puente serial. Pendiente: protegerlas con una clave compartida del puente (tarea 5.2 de [tareas.md](tareas.md)).
 
 ## Pruebas
