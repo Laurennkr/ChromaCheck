@@ -37,7 +37,7 @@ Si varias reglas de roja se cumplen a la vez, el mensaje es el de la más grave:
 1. Con alerta amarilla, la pantalla completa de F4 cambia la franja a dorado, muestra "⚠ Alerta amarilla: desviación aislada" y la revisión sigue.
 2. Con alerta roja, la pantalla completa cambia a rojo: "⚠ Lote pausado", el motivo y la hora. El lote ya no acepta lecturas.
 3. Durante 5 segundos la pantalla completa solo muestra el aviso, para que el operario lea el motivo. Después aparecen el botón principal "Reanudar recolección" y el secundario "Entendido".
-4. "Reanudar recolección" devuelve el lote a Activo y a modo `Recoleccion` en una sola operación, y la pantalla completa vuelve a "Recolectando tarros del lote …". Si la siguiente lectura vuelve a cumplir una regla de roja, el lote se pausa de nuevo. Las lecturas de antes de la pausa siguen contando: si se pausó por tres lecturas seguidas fuera de tolerancia, la siguiente lectura mayor que 8,0 lo vuelve a pausar.
+4. "Reanudar recolección" devuelve el lote a Activo y a modo `Recoleccion` en una sola operación, y la pantalla completa vuelve a "Recolectando tarros del lote …". Si la siguiente lectura vuelve a cumplir una regla de roja, el lote se pausa de nuevo. Las reglas de lecturas repetidas y crecientes solo cuentan las lecturas posteriores a la última alerta roja: después de reanudar, la primera lectura mayor que 8,0 da alerta amarilla y la tercera seguida fuera de tolerancia da roja. Una lectura con ΔE de 15,0 o más pausa de inmediato.
 5. "Entendido" cierra la pantalla completa y deja el lote pausado; la pantalla del lote muestra el aviso de lote pausado arriba, la lista de alertas y, como acción principal, "Reanudar recolección" (sin la espera de 5 segundos).
 
 ## Criterios de aceptación
@@ -49,21 +49,23 @@ Ya en `development`:
 - [x] Tres lecturas seguidas con ΔE mayor que 8,0 dan alerta roja aunque suban, bajen o se repitan.
 - [x] Con varias reglas de roja a la vez, el mensaje es el de la más grave (grave > repetida > acumulativa).
 - [x] La alerta roja pausa el lote y pone su captura en `Inactivo` en la misma sentencia.
-- [x] Un lote pausado rechaza lecturas (409) y no muestra botones de captura.
+- [x] Un lote pausado rechaza lecturas (409); su única acción es "Reanudar recolección".
 - [x] La pantalla del lote muestra el aviso de pausa con el motivo y la lista de alertas, de la más reciente a la más antigua.
 
 Pendientes (identidad visual):
 
-- [ ] Estados dorado y rojo de la pantalla completa, con "⚠" y palabra.
-- [ ] La alerta roja no se cierra sola: espera "Reanudar recolección" o "Entendido".
+- [x] Estado rojo de la pantalla completa: franja roja, "⚠ Lote pausado", el motivo y la hora.
+- [ ] Estado dorado de la pantalla completa (alerta amarilla), con "⚠" y palabra.
+- [x] La alerta roja no se cierra sola: espera "Reanudar recolección" o "Entendido".
 - [x] Alertas de la lista con 18 px, nivel escrito ("Alerta roja", "Alerta amarilla") y hora.
 
 Pendientes (reanudar el lote):
 
-- [ ] Los botones "Reanudar recolección" y "Entendido" aparecen 5 segundos después de la alerta roja, no antes.
-- [ ] `POST /api/lotes/[id]/reanudar` pasa el lote a Activo y a `Recoleccion` en la misma sentencia (ver [contratos/api.md](../contratos/api.md)).
-- [ ] Si otro lote usa el sensor, "Reanudar recolección" no se permite y la pantalla dice cuál lote lo usa.
-- [ ] En la pantalla de un lote pausado, "Reanudar recolección" es la acción principal y abre la pantalla completa de F4.
+- [x] Los botones "Reanudar recolección" y "Entendido" aparecen 5 segundos después de la alerta roja, no antes; mientras tanto no hay "✕ Cerrar" y Esc no hace nada.
+- [x] `POST /api/lotes/[id]/reanudar` pasa el lote a Activo y a `Recoleccion` en la misma sentencia (ver [contratos/api.md](../contratos/api.md)).
+- [x] Si otro lote usa el sensor, "Reanudar recolección" no se permite y la pantalla dice cuál lote lo usa.
+- [x] En la pantalla de un lote pausado, "Reanudar recolección" es la acción principal y abre la pantalla completa de F4.
+- [x] Después de reanudar, la cuenta de lecturas repetidas y crecientes empieza de nuevo.
 
 ## Fuera de alcance
 
