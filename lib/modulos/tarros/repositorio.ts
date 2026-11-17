@@ -108,15 +108,22 @@ export async function insertarTarro(
 }
 
 // Trae el deltaE de las últimas lecturas del lote, ordenadas de la más antigua a la más reciente.
+// Solo cuenta las lecturas posteriores al tarro de la última alerta roja del lote: después de
+// reanudar, la cuenta de lecturas repetidas o crecientes empieza de nuevo.
 // Si dos lecturas tienen el mismo timestamp, id_tarro decide cuál es la más reciente
 export async function buscarUltimasDesviacionesDeLote(
   loteId: number,
   cantidad: number
 ): Promise<number[]> {
   const resultado = await pool.query<{ desviacion_delta_e: string }>(
-    `SELECT desviacion_delta_e FROM tarros
-     WHERE lote_id = $1 AND es_muestra = false
-     ORDER BY timestamp DESC, id_tarro DESC LIMIT $2`,
+    `SELECT t.desviacion_delta_e FROM tarros t
+     WHERE t.lote_id = $1 AND t.es_muestra = false
+       AND t.id_tarro > COALESCE(
+         (SELECT MAX(a.tarro_id) FROM alertas a
+          JOIN tarros ta ON ta.id_tarro = a.tarro_id
+          WHERE ta.lote_id = $1 AND a.nivel = 'Roja'),
+         0)
+     ORDER BY t.timestamp DESC, t.id_tarro DESC LIMIT $2`,
     [loteId, cantidad]
   );
   return resultado.rows.map((fila) => Number(fila.desviacion_delta_e)).reverse();
