@@ -57,7 +57,7 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
 
 Las pruebas unitarias están junto al código que prueban (`lib/modulos/<modulo>/*.test.ts`) y no necesitan la base de datos ni el servidor:
 
-- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral 8,0 y alertas).
+- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral 8,0 y alertas) y la tabla de decisión de alertas de F5 (roja con ΔE ≥ 15 o con 3 lecturas seguidas fuera de tolerancia).
 - `servicio.test.ts`: la orquestación, con el repositorio simulado (`jest.mock`): modos de captura, pausa por alerta roja y errores.
 - `repositorio.test.ts`: las consultas SQL y sus parámetros, con el pool de PostgreSQL simulado.
 
@@ -110,7 +110,7 @@ Los lotes se crean desde la pantalla principal; no se renombran. La API se docum
 app/                  Pantallas (page.tsx) y endpoints de la API (api/**/route.ts)
 lib/db.ts             Pool de conexiones a PostgreSQL
 lib/modulos/lotes     Consultas y reglas de los lotes
-lib/modulos/tarros    Registro de tarros, cálculo de deltaE y patrón acumulativo
+lib/modulos/tarros    Registro de tarros, cálculo de deltaE y reglas de alerta (grave, repetida, acumulativa)
 lib/modulos/alertas   Registro y consulta de alertas
 public/               Logo e imágenes
 ```
