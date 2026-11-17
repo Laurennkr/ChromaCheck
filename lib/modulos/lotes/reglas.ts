@@ -10,7 +10,12 @@ export type ModoCaptura = (typeof MODOS_CAPTURA)[number];
 
 export const MODO_CAPTURA_DETENIDO: ModoCaptura = 'Inactivo';
 
+// Modo en que queda un lote al reanudarlo: la recolección sigue sin otro clic
+export const MODO_CAPTURA_AL_REANUDAR: ModoCaptura = 'Recoleccion';
+
 const ESTADO_LOTE_ACTIVO = 'Activo';
+
+export const ESTADO_LOTE_PAUSADO = 'Pausado';
 
 // Indica si el valor es uno de los modos de captura válidos
 export function esModoCapturaValido(valor: unknown): valor is ModoCaptura {
@@ -65,4 +70,33 @@ export function necesitaMuestraPatron(lote: {
     lote.modoCaptura === MODO_CAPTURA_DETENIDO &&
     !lote.tieneMuestra
   );
+}
+
+// Lote que ocupa el sensor, para decir en el mensaje cuál es
+export interface LoteQueCaptura {
+  codigo: string;
+  modoCaptura: string;
+}
+
+// Revisa si un lote se puede reanudar: solo un lote Pausado y con el sensor libre (ningún otro
+// lote capturando). Devuelve el motivo del rechazo, o null si se puede
+export function obtenerMotivoRechazoReanudar(
+  estado: string,
+  otroLoteCapturando: LoteQueCaptura | null
+): string | null {
+  if (estado !== ESTADO_LOTE_PAUSADO) {
+    return crearMensajeLoteNoPausado(estado);
+  }
+  if (otroLoteCapturando) {
+    return crearMensajeOtroLoteCapturando(
+      otroLoteCapturando.codigo,
+      otroLoteCapturando.modoCaptura
+    );
+  }
+  return null;
+}
+
+// Mensaje cuando se pide reanudar un lote que no está pausado
+export function crearMensajeLoteNoPausado(estado: string): string {
+  return `El lote está ${estado}; solo se puede reanudar un lote Pausado`;
 }

@@ -9,6 +9,7 @@ import {
   obtenerLotes,
   obtenerLotesConResumen,
   pausarLote,
+  reanudarLote,
 } from './servicio';
 
 jest.mock('./repositorio');
@@ -130,6 +131,65 @@ describe('obtenerCapturaActiva', () => {
       loteId: 2,
       codigo: 'TEST_B',
       modo: 'Recoleccion',
+    });
+  });
+});
+
+describe('reanudarLote', () => {
+  const LOTE_PAUSADO: Lote = {
+    ...OTRO_LOTE,
+    id: 1,
+    codigo: 'TEST_A',
+    estado: 'Pausado',
+    modo_captura: 'Inactivo',
+  };
+  const LOTE_REANUDADO: Lote = { ...LOTE_PAUSADO, estado: 'Activo', modo_captura: 'Recoleccion' };
+  const MENSAJE_SENSOR_OCUPADO =
+    'El lote "TEST_B" ya está capturando en modo Recoleccion; detén esa captura antes de iniciar otra';
+
+  beforeEach(() => {
+    repo.buscarLotePorId.mockResolvedValue(LOTE_PAUSADO);
+    repo.buscarLoteCapturando.mockResolvedValue(null);
+    repo.reanudarLotePausado.mockResolvedValue({ tipo: 'reanudado', lote: LOTE_REANUDADO });
+  });
+
+  test('un lote Pausado con el sensor libre se reanuda y devuelve el lote actualizado', async () => {
+    expect(await reanudarLote(1)).toEqual({ tipo: 'reanudado', lote: LOTE_REANUDADO });
+    expect(repo.reanudarLotePausado).toHaveBeenCalledWith(1);
+  });
+
+  test('responde loteInexistente si el lote no existe', async () => {
+    repo.buscarLotePorId.mockResolvedValue(null);
+    expect(await reanudarLote(1)).toEqual({ tipo: 'loteInexistente' });
+    expect(repo.reanudarLotePausado).not.toHaveBeenCalled();
+  });
+
+  test('rechaza un lote Activo', async () => {
+    repo.buscarLotePorId.mockResolvedValue({ ...LOTE_PAUSADO, estado: 'Activo' });
+    expect(await reanudarLote(1)).toEqual({
+      tipo: 'rechazado',
+      mensaje: 'El lote está Activo; solo se puede reanudar un lote Pausado',
+    });
+    expect(repo.reanudarLotePausado).not.toHaveBeenCalled();
+  });
+
+  test('rechaza si otro lote está capturando, nombrando ese lote', async () => {
+    repo.buscarLoteCapturando.mockResolvedValue(OTRO_LOTE);
+    expect(await reanudarLote(1)).toEqual({ tipo: 'rechazado', mensaje: MENSAJE_SENSOR_OCUPADO });
+    expect(repo.reanudarLotePausado).not.toHaveBeenCalled();
+  });
+
+  test('si otro lote empezó a capturar al mismo tiempo, rechaza nombrándolo', async () => {
+    repo.reanudarLotePausado.mockResolvedValue({ tipo: 'otroLoteCapturando' });
+    repo.buscarLoteCapturando.mockResolvedValueOnce(null).mockResolvedValueOnce(OTRO_LOTE);
+    expect(await reanudarLote(1)).toEqual({ tipo: 'rechazado', mensaje: MENSAJE_SENSOR_OCUPADO });
+  });
+
+  test('si otra petición lo reanudó al mismo tiempo, lo rechaza', async () => {
+    repo.reanudarLotePausado.mockResolvedValue({ tipo: 'noPausado' });
+    expect(await reanudarLote(1)).toEqual({
+      tipo: 'rechazado',
+      mensaje: 'El lote ya no está pausado; recargue la página para ver su estado',
     });
   });
 });
