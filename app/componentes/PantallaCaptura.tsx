@@ -19,7 +19,25 @@ interface PropiedadesPantallaCaptura {
   elementoFocoAlCerrar?: RefObject<HTMLElement | null>;
   // Mientras se envía un cambio, "✕ Cerrar" y Esc no hacen nada para evitar una doble llamada
   estaEnviando?: boolean;
+  // 'peligro' pinta la franja de rojo (lote pausado por una alerta roja)
+  variante?: VariantePantalla;
+  // En false no hay "✕ Cerrar" y Esc no hace nada (los 5 s del aviso de lote pausado)
+  sePuedeCerrar?: boolean;
 }
+
+export type VariantePantalla = 'normal' | 'peligro';
+
+// Colores de la franja superior y de su botón "✕ Cerrar" según la variante
+const CLASES_FRANJA: Record<VariantePantalla, { franja: string; cerrar: string }> = {
+  normal: {
+    franja: 'bg-accion text-texto-sobre-accion',
+    cerrar: 'border-texto-sobre-accion focus-visible:outline-texto-sobre-accion',
+  },
+  peligro: {
+    franja: 'bg-peligro text-texto-sobre-peligro',
+    cerrar: 'border-texto-sobre-peligro focus-visible:outline-texto-sobre-peligro',
+  },
+};
 
 // Selector del elemento que recibe el foco al abrir (por ejemplo, el botón principal)
 const SELECTOR_FOCO_INICIAL = '[data-foco-inicial]';
@@ -32,9 +50,12 @@ export default function PantallaCaptura({
   alCerrar,
   elementoFocoAlCerrar,
   estaEnviando = false,
+  variante = 'normal',
+  sePuedeCerrar = true,
 }: PropiedadesPantallaCaptura) {
   const refDialogo = useRef<HTMLDialogElement>(null);
   const idTitulo = useId();
+  const clases = CLASES_FRANJA[variante];
 
   useEffect(() => {
     const dialogo = refDialogo.current;
@@ -56,7 +77,7 @@ export default function PantallaCaptura({
   // Esc dispara "cancel": se evita el cierre nativo para que el estado lo maneje quien la usa
   function cancelarConEsc(evento: SyntheticEvent<HTMLDialogElement>) {
     evento.preventDefault();
-    if (!estaEnviando) alCerrar();
+    if (sePuedeCerrar && !estaEnviando) alCerrar();
   }
 
   return (
@@ -67,18 +88,22 @@ export default function PantallaCaptura({
       onCancel={cancelarConEsc}
       className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-superficie p-0 text-texto opacity-100 open:flex transition-opacity duration-150 backdrop:bg-superficie motion-reduce:transition-none starting:opacity-0"
     >
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-accion px-4 py-3 text-texto-sobre-accion sm:px-8">
+      <div
+        className={`flex min-h-20 flex-wrap items-center justify-between gap-4 px-4 py-3 sm:px-8 ${clases.franja}`}
+      >
         <h2 id={idTitulo} className="font-titulo text-2xl font-bold break-all">
           {titulo}
         </h2>
-        <button
-          type="button"
-          onClick={alCerrar}
-          disabled={estaEnviando}
-          className="inline-flex h-14 items-center gap-2 rounded-lg border-2 border-texto-sobre-accion px-5 font-titulo text-lg font-semibold focus-visible:outline-4 focus-visible:outline-offset-3 focus-visible:outline-texto-sobre-accion disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <span aria-hidden="true">✕</span> Cerrar
-        </button>
+        {sePuedeCerrar && (
+          <button
+            type="button"
+            onClick={alCerrar}
+            disabled={estaEnviando}
+            className={`inline-flex h-14 items-center gap-2 rounded-lg border-2 px-5 font-titulo text-lg font-semibold focus-visible:outline-4 focus-visible:outline-offset-3 disabled:cursor-not-allowed disabled:opacity-60 ${clases.cerrar}`}
+          >
+            <span aria-hidden="true">✕</span> Cerrar
+          </button>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-10 text-center sm:px-8">

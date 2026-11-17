@@ -4,14 +4,22 @@ import { useEffect, useRef, useState, useTransition, type ReactNode, type Ref } 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatearDeltaE } from '@/lib/formato';
-import { necesitaMuestraPatron, type ModoCaptura } from '@/lib/modulos/lotes/reglas';
+import {
+  ESTADO_LOTE_PAUSADO,
+  necesitaMuestraPatron,
+  type ModoCaptura,
+} from '@/lib/modulos/lotes/reglas';
 import type { Tarro } from '@/lib/modulos/tarros/repositorio';
 import Boton, { obtenerClasesBoton } from './Boton';
 import CuadroColor from './CuadroColor';
+import EstadoLotePausado, { type MotivoPausa } from './EstadoLotePausado';
 import PantallaCaptura from './PantallaCaptura';
 
 // Cada cuánto se vuelve a consultar la página mientras el lote está capturando
 const INTERVALO_REFRESCO_MS = 3000;
+
+// Tiempo en que el aviso de lote pausado se ve solo, sin botones, para que el operario lea el motivo
+const ESPERA_AVISO_PAUSA_MS = 5000;
 
 interface CapturaDeOtroLote {
   loteId: number;
@@ -29,10 +37,13 @@ interface PropiedadesControlCaptura {
   // Última lectura del lote (sin la muestra); null si todavía no hay tarros
   ultimoTarro: Tarro | null;
   capturaDeOtroLote: CapturaDeOtroLote | null;
+  // Alerta roja que pausó el lote; null si no está pausado o no se encontró
+  motivoPausa: MotivoPausa | null;
 }
 
-// Acción principal de la pantalla del lote: Agregar muestra → Iniciar recolección.
-// Lo que hace el sensor se muestra en la pantalla completa (PantallaCaptura)
+// Acción principal de la pantalla del lote: Agregar muestra → Iniciar recolección, o Reanudar
+// recolección si una alerta roja lo pausó. Lo que hace el sensor se muestra en la pantalla
+// completa (PantallaCaptura)
 export default function ControlCaptura({
   loteId,
   codigo,
@@ -41,8 +52,10 @@ export default function ControlCaptura({
   muestraHex,
   ultimoTarro,
   capturaDeOtroLote,
+  motivoPausa,
 }: PropiedadesControlCaptura) {
-  const { cambiarModo, mensajeError, estaEnviando } = useCambiarModo(loteId);
+  const { cambiarModo, reanudarRecoleccion, mensajeError, estaEnviando } = useCambiosLote(loteId);
+  const avisoPausa = useAvisoPausa(estado, modoCaptura);
   // Solo vive en memoria: al volver a entrar al lote, la pantalla del estado A sale otra vez
   const [seCerroEstadoA, setSeCerroEstadoA] = useState(false);
   const refAccionPrincipal = useRef<HTMLButtonElement>(null);
@@ -51,31 +64,25 @@ export default function ControlCaptura({
   const estaCapturando = modoCaptura !== 'Inactivo';
   useRefrescarMientrasCaptura(estaCapturando);
 
-  // Un lote pausado no puede capturar: el aviso de pausa ya explica el motivo
-  if (estado !== 'Activo') return null;
-
   const debePedirMuestra =
     necesitaMuestraPatron({ estado, modoCaptura, tieneMuestra }) && !seCerroEstadoA;
-  // La pantalla completa está abierta mientras el sensor captura para este lote, o en el estado A
-  const estaPantallaAbierta = estaCapturando || debePedirMuestra;
+  // La pantalla completa está abierta mientras el sensor captura para este lote, en el estado A,
+  // o con el aviso de lote pausado que dejó una alerta roja durante la recolección
+  const estaPantallaAbierta = estaCapturando || debePedirMuestra || avisoPausa.estaAbierto;
   const errorEnPantalla = <MensajeError mensaje={mensajeError} />;
 
   return (
     <div className="space-y-4">
-      {tieneMuestra ? (
-        <VistaConMuestra
-          capturaDeOtroLote={capturaDeOtroLote}
-          estaEnviando={estaEnviando}
-          refAccion={refAccionPrincipal}
-          iniciarRecoleccion={() => cambiarModo('Recoleccion')}
-        />
-      ) : (
-        <VistaSinMuestra
-          capturaDeOtroLote={capturaDeOtroLote}
-          refAccion={refAccionPrincipal}
-          abrirPantalla={() => setSeCerroEstadoA(false)}
-        />
-      )}
+      <AccionPrincipal
+        estado={estado}
+        tieneMuestra={tieneMuestra}
+        capturaDeOtroLote={capturaDeOtroLote}
+        estaEnviando={estaEnviando}
+        refAccion={refAccionPrincipal}
+        iniciarRecoleccion={() => cambiarModo('Recoleccion')}
+        reanudarRecoleccion={reanudarRecoleccion}
+        abrirEstadoA={() => setSeCerroEstadoA(false)}
+      />
 
       {!estaPantallaAbierta && errorEnPantalla}
 
@@ -84,22 +91,133 @@ export default function ControlCaptura({
           titulo={obtenerTituloPantalla(modoCaptura, codigo)}
           estaEnviando={estaEnviando}
           elementoFocoAlCerrar={refAccionPrincipal}
-          // Cerrar = detener la captura; en el estado A no hay captura que detener
-          alCerrar={estaCapturando ? () => cambiarModo('Inactivo') : () => setSeCerroEstadoA(true)}
+          variante={avisoPausa.estaAbierto ? 'peligro' : 'normal'}
+          sePuedeCerrar={!avisoPausa.estaAbierto || avisoPausa.puedeResponder}
+          alCerrar={elegirAccionCerrar({
+            estaAvisoPausaAbierto: avisoPausa.estaAbierto,
+            estaCapturando,
+            cerrarAvisoPausa: avisoPausa.cerrar,
+            detenerCaptura: () => cambiarModo('Inactivo'),
+            cerrarEstadoA: () => setSeCerroEstadoA(true),
+          })}
         >
-          <ContenidoPantalla
-            modoCaptura={modoCaptura}
-            muestraHex={muestraHex}
-            ultimoTarro={ultimoTarro}
-            capturaDeOtroLote={capturaDeOtroLote}
-            estaEnviando={estaEnviando}
-            cambiarModo={cambiarModo}
-          />
+          {avisoPausa.estaAbierto ? (
+            <EstadoLotePausado
+              motivoPausa={motivoPausa}
+              puedeResponder={avisoPausa.puedeResponder}
+              estaEnviando={estaEnviando}
+              reanudar={reanudarRecoleccion}
+              entender={avisoPausa.cerrar}
+            />
+          ) : (
+            <ContenidoPantalla
+              modoCaptura={modoCaptura}
+              muestraHex={muestraHex}
+              ultimoTarro={ultimoTarro}
+              capturaDeOtroLote={capturaDeOtroLote}
+              estaEnviando={estaEnviando}
+              cambiarModo={cambiarModo}
+            />
+          )}
           {errorEnPantalla}
         </PantallaCaptura>
       )}
     </div>
   );
+}
+
+// Qué hacen "✕ Cerrar" y Esc: en el aviso de pausa, lo mismo que "Entendido" (el lote sigue
+// pausado); capturando, detener la captura; en el estado A, solo cerrar (no hay captura)
+function elegirAccionCerrar(opciones: {
+  estaAvisoPausaAbierto: boolean;
+  estaCapturando: boolean;
+  cerrarAvisoPausa: () => void;
+  detenerCaptura: () => void;
+  cerrarEstadoA: () => void;
+}) {
+  if (opciones.estaAvisoPausaAbierto) return opciones.cerrarAvisoPausa;
+  return opciones.estaCapturando ? opciones.detenerCaptura : opciones.cerrarEstadoA;
+}
+
+// Acción principal de la pantalla del lote, debajo del título, según su estado
+function AccionPrincipal({
+  estado,
+  tieneMuestra,
+  capturaDeOtroLote,
+  estaEnviando,
+  refAccion,
+  iniciarRecoleccion,
+  reanudarRecoleccion,
+  abrirEstadoA,
+}: {
+  estado: string;
+  tieneMuestra: boolean;
+  capturaDeOtroLote: CapturaDeOtroLote | null;
+  estaEnviando: boolean;
+  refAccion: Ref<HTMLButtonElement>;
+  iniciarRecoleccion: () => void;
+  reanudarRecoleccion: () => void;
+  abrirEstadoA: () => void;
+}) {
+  if (estado === ESTADO_LOTE_PAUSADO) {
+    return (
+      <VistaLotePausado
+        capturaDeOtroLote={capturaDeOtroLote}
+        estaEnviando={estaEnviando}
+        refAccion={refAccion}
+        reanudarRecoleccion={reanudarRecoleccion}
+      />
+    );
+  }
+  if (tieneMuestra) {
+    return (
+      <VistaConMuestra
+        capturaDeOtroLote={capturaDeOtroLote}
+        estaEnviando={estaEnviando}
+        refAccion={refAccion}
+        iniciarRecoleccion={iniciarRecoleccion}
+      />
+    );
+  }
+  return (
+    <VistaSinMuestra
+      capturaDeOtroLote={capturaDeOtroLote}
+      refAccion={refAccion}
+      abrirPantalla={abrirEstadoA}
+    />
+  );
+}
+
+// Abre el aviso rojo de lote pausado cuando una alerta roja pausa el lote mientras la recolección
+// está abierta (el lote pasa de Recoleccion a Pausado). Durante los primeros 5 s no se puede
+// responder ni cerrar. Al recargar la página de un lote ya pausado no se abre: la pantalla del
+// lote muestra el aviso y "Reanudar recolección" sin espera
+function useAvisoPausa(estado: string, modoCaptura: ModoCaptura) {
+  const [loteAnterior, setLoteAnterior] = useState({ estado, modoCaptura });
+  const [estaAbierto, setEstaAbierto] = useState(false);
+  const [puedeResponder, setPuedeResponder] = useState(false);
+
+  // Se compara con el render anterior durante el render (no en un efecto), como recomienda React
+  // para ajustar el estado cuando cambian las props
+  if (loteAnterior.estado !== estado || loteAnterior.modoCaptura !== modoCaptura) {
+    setLoteAnterior({ estado, modoCaptura });
+    const sePausoRecolectando =
+      estado === ESTADO_LOTE_PAUSADO && loteAnterior.modoCaptura === 'Recoleccion';
+    setEstaAbierto(sePausoRecolectando);
+    setPuedeResponder(false);
+  }
+
+  useEffect(() => {
+    if (!estaAbierto) return;
+    const temporizador = setTimeout(() => setPuedeResponder(true), ESPERA_AVISO_PAUSA_MS);
+    return () => clearTimeout(temporizador);
+  }, [estaAbierto]);
+
+  return {
+    estaAbierto: estaAbierto && estado === ESTADO_LOTE_PAUSADO,
+    puedeResponder,
+    cerrar: () => setEstaAbierto(false),
+  };
 }
 
 // Texto de la franja de la pantalla completa; nunca muestra el valor interno 'Recoleccion'
@@ -152,24 +270,20 @@ function ContenidoPantalla({
   );
 }
 
-// Llama a la API para cambiar el modo de captura y refresca la página.
-// estaEnviando sigue en true hasta que la página trae el modo nuevo, para evitar el doble clic
-function useCambiarModo(loteId: number) {
+// Llama a la API para cambiar el modo de captura o reanudar el lote, y refresca la página.
+// estaEnviando sigue en true hasta que la página trae el estado nuevo, para evitar el doble clic
+function useCambiosLote(loteId: number) {
   const router = useRouter();
   const [mensajeError, setMensajeError] = useState('');
   const [estaLlamandoApi, setEstaLlamandoApi] = useState(false);
   const [estaRefrescando, iniciarTransicion] = useTransition();
 
-  async function cambiarModo(modo: ModoCaptura) {
+  async function enviarCambio(ruta: string, opciones: RequestInit) {
     setMensajeError('');
     setEstaLlamandoApi(true);
 
     try {
-      const respuesta = await fetch(`/api/lotes/${loteId}/captura`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modo }),
-      });
+      const respuesta = await fetch(ruta, opciones);
       const resultado = await respuesta.json();
 
       if (!resultado.exito) {
@@ -186,7 +300,25 @@ function useCambiarModo(loteId: number) {
     }
   }
 
-  return { cambiarModo, mensajeError, estaEnviando: estaLlamandoApi || estaRefrescando };
+  function cambiarModo(modo: ModoCaptura) {
+    return enviarCambio(`/api/lotes/${loteId}/captura`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modo }),
+    });
+  }
+
+  // Si responde 200, el lote vuelve a Recoleccion y la pantalla completa muestra la recolección
+  function reanudarRecoleccion() {
+    return enviarCambio(`/api/lotes/${loteId}/reanudar`, { method: 'POST' });
+  }
+
+  return {
+    cambiarModo,
+    reanudarRecoleccion,
+    mensajeError,
+    estaEnviando: estaLlamandoApi || estaRefrescando,
+  };
 }
 
 // Mientras el sensor captura para este lote, refresca la página para ver la muestra,
@@ -401,18 +533,49 @@ function VistaConMuestra({
   );
 }
 
+// Pantalla de un lote pausado por una alerta roja: la acción principal es "Reanudar
+// recolección", sin la espera de 5 s. Si responde 200, se abre la pantalla completa de recolección
+function VistaLotePausado({
+  capturaDeOtroLote,
+  estaEnviando,
+  refAccion,
+  reanudarRecoleccion,
+}: {
+  capturaDeOtroLote: CapturaDeOtroLote | null;
+  estaEnviando: boolean;
+  refAccion: Ref<HTMLButtonElement>;
+  reanudarRecoleccion: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-start gap-4">
+      <BotonAccionPrincipal
+        ref={refAccion}
+        estaDeshabilitado={Boolean(capturaDeOtroLote)}
+        estaEnviando={estaEnviando}
+        textoEnviando="Reanudando…"
+        onClick={reanudarRecoleccion}
+      >
+        Reanudar recolección
+      </BotonAccionPrincipal>
+      <AvisoSensorOcupado capturaDeOtroLote={capturaDeOtroLote} />
+    </div>
+  );
+}
+
 // Botón de 72 px de la pantalla del lote. Es un <button> propio (no Boton) porque necesita
 // ref: la pantalla completa le devuelve el foco al cerrarse
 function BotonAccionPrincipal({
   ref,
   estaDeshabilitado,
   estaEnviando = false,
+  textoEnviando = 'Abriendo…',
   onClick,
   children,
 }: {
   ref: Ref<HTMLButtonElement>;
   estaDeshabilitado: boolean;
   estaEnviando?: boolean;
+  textoEnviando?: string;
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -425,7 +588,7 @@ function BotonAccionPrincipal({
       onClick={onClick}
       className={obtenerClasesBoton({ esGrande: true })}
     >
-      {estaEnviando ? 'Abriendo…' : children}
+      {estaEnviando ? textoEnviando : children}
     </button>
   );
 }

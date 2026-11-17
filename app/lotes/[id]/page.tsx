@@ -55,6 +55,7 @@ export default async function PaginaLote({ params }: PageProps<'/lotes/[id]'>) {
           muestraHex={muestra?.resultado_hex ?? null}
           ultimoTarro={lecturasRecientes[0] ?? null}
           capturaDeOtroLote={capturaDeOtroLote}
+          motivoPausa={alertaQuePauso ?? null}
         />
 
         <ComparacionColores muestra={muestra} ultimoTarro={lecturasRecientes[0]} />
