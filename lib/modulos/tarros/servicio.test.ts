@@ -181,6 +181,52 @@ describe('registrarLecturaDelSensor', () => {
     expect(mockPausarLote).toHaveBeenCalledWith(1);
   });
 
+  test('una lectura con ΔE ≥ 15 da alerta Roja por desviación grave y pausa el lote', async () => {
+    // Las anteriores en tolerancia: la Roja viene solo de la magnitud de la nueva
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([3.0, 3.0, 15.54]);
+
+    await registrarLecturaDelSensor(1, '#785FBE', [120, 95, 190]);
+
+    expect(repo.insertarTarro).toHaveBeenCalledWith(
+      expect.objectContaining({ desviacionDeltaE: 15.54, resultado: 'No Aprobado' })
+    );
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Roja',
+      'Desviación grave de 15.54 ΔE (límite 15)',
+      true
+    );
+    expect(mockPausarLote).toHaveBeenCalledWith(1);
+  });
+
+  test('3 lecturas seguidas fuera de tolerancia, aunque bajen, dan Roja por repetición y pausan', async () => {
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([9.0, 12.0, 8.01]);
+
+    await registrarLecturaDelSensor(1, '#7849CF', [120, 73, 207]);
+
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Roja',
+      'Desviación repetida: 3 lecturas seguidas fuera de tolerancia',
+      true
+    );
+    expect(mockPausarLote).toHaveBeenCalledWith(1);
+  });
+
+  test('una lectura con ΔE 14,4 y anteriores en tolerancia da Amarilla y no pausa', async () => {
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([9.0, 3.0, 14.4]);
+
+    await registrarLecturaDelSensor(1, '#7864C8', [120, 100, 200]);
+
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Amarilla',
+      'Desviación aislada de 14.4 ΔE',
+      false
+    );
+    expect(mockPausarLote).not.toHaveBeenCalled();
+  });
+
   test('responde loteInexistente si el lote no existe', async () => {
     mockObtenerLotePorId.mockResolvedValue(null);
     expect(await registrarLecturaDelSensor(1, '#794FC8', [121, 79, 200])).toEqual({
