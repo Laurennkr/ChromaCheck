@@ -11,7 +11,8 @@ const configuracion = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  testMatch: ['<rootDir>/lib/**/*.test.ts'],
+  // Lógica en lib/ y endpoints de la API (route.ts) con sus servicios simulados
+  testMatch: ['<rootDir>/lib/**/*.test.ts', '<rootDir>/app/api/**/*.test.ts'],
   clearMocks: true,
   // ACQ-03: cobertura de pruebas unitarias de al menos 80 % sobre lib/modulos
   collectCoverageFrom: ['lib/modulos/**/*.ts', '!lib/modulos/**/*.test.ts'],

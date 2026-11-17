@@ -9,6 +9,7 @@ import {
   detenerCapturaDeMuestra,
   insertarLote,
   pausarLoteYDetenerCaptura,
+  reanudarLotePausado,
 } from './repositorio';
 
 jest.mock('@/lib/db', () => ({ __esModule: true, default: { query: jest.fn() } }));
@@ -95,6 +96,37 @@ test('pausarLoteYDetenerCaptura pausa el lote y lo deja Inactivo en una sola sen
   );
   responderFilas([]);
   expect(await pausarLoteYDetenerCaptura(1)).toBeNull();
+});
+
+describe('reanudarLotePausado', () => {
+  test('pasa el lote Pausado a Activo y Recoleccion en una sola sentencia', async () => {
+    responderFilas([{ ...LOTE, modo_captura: 'Recoleccion' }]);
+    expect(await reanudarLotePausado(1)).toEqual({
+      tipo: 'reanudado',
+      lote: { ...LOTE, modo_captura: 'Recoleccion' },
+    });
+    expect(consulta).toHaveBeenCalledWith(
+      expect.stringMatching(
+        /SET estado = 'Activo', modo_captura = \$1\s+WHERE id = \$2 AND estado = \$3/
+      ),
+      ['Recoleccion', 1, 'Pausado']
+    );
+  });
+
+  test('responde noPausado si el lote no existe o ya no estaba Pausado', async () => {
+    responderFilas([]);
+    expect(await reanudarLotePausado(1)).toEqual({ tipo: 'noPausado' });
+  });
+
+  test('traduce el choque con lotes_un_lote_capturando a otroLoteCapturando', async () => {
+    consulta.mockRejectedValue(crearErrorPostgres('23505', 'lotes_un_lote_capturando'));
+    expect(await reanudarLotePausado(1)).toEqual({ tipo: 'otroLoteCapturando' });
+  });
+
+  test('propaga los demás errores', async () => {
+    consulta.mockRejectedValue(crearErrorPostgres('57P01'));
+    await expect(reanudarLotePausado(1)).rejects.toThrow('error de PostgreSQL');
+  });
 });
 
 describe('búsquedas', () => {

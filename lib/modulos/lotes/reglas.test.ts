@@ -1,8 +1,10 @@
 import {
+  crearMensajeLoteNoPausado,
   crearMensajeOtroLoteCapturando,
   esModoCapturaValido,
   necesitaMuestraPatron,
   obtenerMotivoRechazoModoCaptura,
+  obtenerMotivoRechazoReanudar,
   puedeRegistrarLectura,
   puedeRegistrarMuestra,
 } from './reglas';
@@ -89,5 +91,34 @@ describe('necesitaMuestraPatron', () => {
 
   test.each(['Muestra', 'Recoleccion'] as const)('un lote en modo %s no la pide', (modo) => {
     expect(necesitaMuestraPatron({ ...activoInactivoSinMuestra, modoCaptura: modo })).toBe(false);
+  });
+});
+
+describe('obtenerMotivoRechazoReanudar', () => {
+  const OTRO_LOTE = { codigo: 'TEST_B', modoCaptura: 'Recoleccion' };
+
+  test('un lote Pausado con el sensor libre se puede reanudar', () => {
+    expect(obtenerMotivoRechazoReanudar('Pausado', null)).toBeNull();
+  });
+
+  test('un lote Activo no se reanuda', () => {
+    expect(obtenerMotivoRechazoReanudar('Activo', null)).toBe(
+      'El lote está Activo; solo se puede reanudar un lote Pausado'
+    );
+    expect(crearMensajeLoteNoPausado('Activo')).toBe(
+      'El lote está Activo; solo se puede reanudar un lote Pausado'
+    );
+  });
+
+  test('si otro lote usa el sensor, el motivo dice cuál', () => {
+    expect(obtenerMotivoRechazoReanudar('Pausado', OTRO_LOTE)).toBe(
+      crearMensajeOtroLoteCapturando('TEST_B', 'Recoleccion')
+    );
+  });
+
+  test('el estado se revisa antes que el sensor', () => {
+    expect(obtenerMotivoRechazoReanudar('Activo', OTRO_LOTE)).toBe(
+      crearMensajeLoteNoPausado('Activo')
+    );
   });
 });
