@@ -55,6 +55,11 @@ test('buscarUltimasDesviacionesDeLote convierte a número y ordena de la más an
   ]);
   expect(await buscarUltimasDesviacionesDeLote(1, 3)).toEqual([0.3, 0.9, 1.3]);
   expect(consulta).toHaveBeenCalledWith(expect.stringContaining('LIMIT $2'), [1, 3]);
+  // Con el mismo timestamp, el id_tarro mayor es la lectura más reciente
+  expect(consulta).toHaveBeenCalledWith(
+    expect.stringContaining('ORDER BY timestamp DESC, id_tarro DESC'),
+    [1, 3]
+  );
 });
 
 test('contarLecturas convierte el total a número', async () => {
