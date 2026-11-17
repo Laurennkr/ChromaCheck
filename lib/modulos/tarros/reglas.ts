@@ -8,6 +8,10 @@ export type ResultadoLectura = 'Aprobado' | 'No Aprobado';
 
 export type NivelAlerta = 'Amarilla' | 'Roja';
 
+// Por qué una lectura fuera de tolerancia genera alerta. Las tres primeras dan Roja y van de
+// mayor a menor gravedad; 'aislada' da Amarilla
+export type CausaAlerta = 'grave' | 'repetida' | 'acumulativa' | 'aislada';
+
 export interface AlertaCalculada {
   nivel: NivelAlerta;
   mensaje: string;
@@ -24,12 +28,19 @@ export interface LoteParaRegistro {
 // ACQ-04: una lectura con deltaE mayor que este valor no se aprueba
 export const UMBRAL_TOLERANCIA_DELTA_E = 8.0;
 
-// Cantidad de lecturas seguidas que se revisan para detectar una desviación acumulativa
+// Una lectura con deltaE mayor o igual que este valor da alerta Roja por sí sola
+export const UMBRAL_ALERTA_ROJA_DELTA_E = 15.0;
+
+// Cantidad de lecturas seguidas que se revisan para detectar una desviación repetida o
+// acumulativa (incluida la lectura nueva)
 export const LECTURAS_PATRON_ACUMULATIVO = 3;
 
 export const RESULTADO_MUESTRA = 'Muestra';
 
-const MENSAJE_ALERTA_ROJA = 'Desviación acumulativa detectada: revisar mezclador o posibles fugas';
+const MENSAJE_ALERTA_REPETIDA = `Desviación repetida: ${LECTURAS_PATRON_ACUMULATIVO} lecturas seguidas fuera de tolerancia`;
+
+const MENSAJE_ALERTA_ACUMULATIVA =
+  'Desviación acumulativa detectada: revisar mezclador o posibles fugas';
 
 // Convierte un color RGB (0-255) a espacio Lab, paso previo para calcular deltaE
 export function convertirRgbALab(r: number, g: number, b: number) {
@@ -108,25 +119,60 @@ export function formanPatronAcumulativo(desviacionesCronologicas: number[]): boo
   return estaAumentando && excedeToleranciaDeltaE(tercera);
 }
 
-// Nivel de alerta de una lectura: ninguna si está en tolerancia, Roja si forma un patrón
-// acumulativo, y Amarilla si es una desviación aislada
-export function obtenerNivelAlerta(
-  desviacionDeltaE: number,
-  esPatronAcumulativo: boolean
-): NivelAlerta | null {
-  if (!excedeToleranciaDeltaE(desviacionDeltaE)) return null;
-  return esPatronAcumulativo ? 'Roja' : 'Amarilla';
+// Indica si una lectura está tan lejos de la muestra que da alerta Roja por sí sola (ΔE ≥ 15)
+export function esDesviacionGrave(desviacionDeltaE: number): boolean {
+  return desviacionDeltaE >= UMBRAL_ALERTA_ROJA_DELTA_E;
 }
 
-// Arma la alerta que se registra para el nivel dado. La roja congela el registro (pausa el lote)
-export function construirAlerta(nivel: NivelAlerta, desviacionDeltaE: number): AlertaCalculada {
-  if (nivel === 'Roja') {
-    return { nivel, mensaje: MENSAJE_ALERTA_ROJA, congelaRegistro: true };
+// Indica si las últimas 3 lecturas (de la más antigua a la más reciente) están todas fuera de
+// tolerancia, aunque no vayan en aumento
+export function sonLecturasRepetidasFueraDeTolerancia(desviacionesCronologicas: number[]): boolean {
+  if (desviacionesCronologicas.length < LECTURAS_PATRON_ACUMULATIVO) return false;
+  return desviacionesCronologicas
+    .slice(-LECTURAS_PATRON_ACUMULATIVO)
+    .every((desviacion) => excedeToleranciaDeltaE(desviacion));
+}
+
+// Causa de la alerta de una lectura, o null si está en tolerancia. desviacionesCronologicas son
+// las últimas lecturas del lote, de la más antigua a la más reciente, incluida la nueva. Si
+// varias causas de Roja aplican, gana la más grave: grave > repetida > acumulativa
+export function obtenerCausaAlerta(
+  desviacionDeltaE: number,
+  desviacionesCronologicas: number[]
+): CausaAlerta | null {
+  if (!excedeToleranciaDeltaE(desviacionDeltaE)) return null;
+  if (esDesviacionGrave(desviacionDeltaE)) return 'grave';
+  if (sonLecturasRepetidasFueraDeTolerancia(desviacionesCronologicas)) return 'repetida';
+  if (formanPatronAcumulativo(desviacionesCronologicas)) return 'acumulativa';
+  return 'aislada';
+}
+
+// Nivel de alerta según su causa: solo la desviación aislada es Amarilla
+export function obtenerNivelAlerta(causa: CausaAlerta): NivelAlerta {
+  return causa === 'aislada' ? 'Amarilla' : 'Roja';
+}
+
+// Mensaje que se guarda con la alerta según su causa
+function crearMensajeAlerta(causa: CausaAlerta, desviacionDeltaE: number): string {
+  switch (causa) {
+    case 'grave':
+      return `Desviación grave de ${desviacionDeltaE} ΔE (límite ${UMBRAL_ALERTA_ROJA_DELTA_E})`;
+    case 'repetida':
+      return MENSAJE_ALERTA_REPETIDA;
+    case 'acumulativa':
+      return MENSAJE_ALERTA_ACUMULATIVA;
+    case 'aislada':
+      return `Desviación aislada de ${desviacionDeltaE} ΔE`;
   }
+}
+
+// Arma la alerta que se registra para la causa dada. La roja congela el registro (pausa el lote)
+export function construirAlerta(causa: CausaAlerta, desviacionDeltaE: number): AlertaCalculada {
+  const nivel = obtenerNivelAlerta(causa);
   return {
     nivel,
-    mensaje: `Desviación aislada de ${desviacionDeltaE} ΔE`,
-    congelaRegistro: false,
+    mensaje: crearMensajeAlerta(causa, desviacionDeltaE),
+    congelaRegistro: nivel === 'Roja',
   };
 }
 
