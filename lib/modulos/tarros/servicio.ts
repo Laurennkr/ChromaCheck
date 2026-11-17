@@ -16,11 +16,11 @@ import {
   construirAlerta,
   convertirHexARgb,
   crearMensajeSinModoMuestra,
-  formanPatronAcumulativo,
+  excedeToleranciaDeltaE,
   LECTURAS_PATRON_ACUMULATIVO,
+  obtenerCausaAlerta,
   obtenerMotivoRechazoLectura,
   obtenerMotivoRechazoMuestra,
-  obtenerNivelAlerta,
   obtenerResultadoLectura,
   RESULTADO_MUESTRA,
   type ColorRgb,
@@ -157,23 +157,24 @@ async function registrarLectura(
   return tarroNuevo;
 }
 
-// Si la lectura está fuera de tolerancia, registra la alerta: Roja (y pausa el lote) si las
-// últimas lecturas forman un patrón acumulativo, o Amarilla si es una desviación aislada
+// Si la lectura está fuera de tolerancia, registra la alerta que deciden las reglas: Roja (y
+// pausa el lote) por desviación grave, repetida o acumulativa, o Amarilla si es aislada
 async function registrarAlertaSiCorresponde(
   loteId: number,
   tarroId: number,
   desviacionDeltaE: number
 ) {
-  // Sin desviación fuera de tolerancia no hay alerta: no hace falta revisar el patrón
-  if (!obtenerNivelAlerta(desviacionDeltaE, false)) return;
+  // Sin desviación fuera de tolerancia no hay alerta: no hace falta consultar las anteriores
+  if (!excedeToleranciaDeltaE(desviacionDeltaE)) return;
 
+  // Ya incluye la lectura recién insertada, de la más antigua a la más reciente
   const desviaciones = await buscarUltimasDesviacionesDeLote(loteId, LECTURAS_PATRON_ACUMULATIVO);
-  const nivel = obtenerNivelAlerta(desviacionDeltaE, formanPatronAcumulativo(desviaciones));
-  if (!nivel) return;
+  const causa = obtenerCausaAlerta(desviacionDeltaE, desviaciones);
+  if (!causa) return;
 
-  const alerta = construirAlerta(nivel, desviacionDeltaE);
+  const alerta = construirAlerta(causa, desviacionDeltaE);
   await crearAlerta(tarroId, alerta.nivel, alerta.mensaje, alerta.congelaRegistro);
-  if (nivel === 'Roja') {
+  if (alerta.congelaRegistro) {
     // Pausar también detiene la captura: el lote deja de recibir lecturas del sensor
     await pausarLote(loteId);
   }

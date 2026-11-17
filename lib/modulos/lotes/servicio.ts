@@ -9,12 +9,14 @@ import {
   detenerCapturaDeMuestra,
   insertarLote,
   pausarLoteYDetenerCaptura,
+  reanudarLotePausado,
   type Lote,
 } from './repositorio';
 import {
   crearMensajeOtroLoteCapturando,
   MODO_CAPTURA_DETENIDO,
   obtenerMotivoRechazoModoCaptura,
+  obtenerMotivoRechazoReanudar,
   type ModoCaptura,
 } from './reglas';
 
@@ -22,6 +24,14 @@ export type ResultadoCambioModoCaptura =
   | { tipo: 'loteInexistente' }
   | { tipo: 'rechazado'; mensaje: string }
   | { tipo: 'cambiado'; lote: Lote };
+
+const MENSAJE_LOTE_YA_REANUDADO =
+  'El lote ya no está pausado; recargue la página para ver su estado';
+
+export type ResultadoReanudarLote =
+  | { tipo: 'loteInexistente' }
+  | { tipo: 'rechazado'; mensaje: string }
+  | { tipo: 'reanudado'; lote: Lote };
 
 export interface CapturaActiva {
   loteId: number;
@@ -67,15 +77,48 @@ export async function cambiarModoCaptura(
   const loteActualizado = await actualizarModoCaptura(loteId, modoNuevo);
   if (!loteActualizado) {
     // Otro lote empezó a capturar entre la revisión y la actualización
-    const loteCapturando = await buscarLoteCapturando();
-    return {
-      tipo: 'rechazado',
-      mensaje: loteCapturando
-        ? crearMensajeOtroLoteCapturando(loteCapturando.codigo, loteCapturando.modo_captura)
-        : 'Otro lote empezó a capturar al mismo tiempo; intenta de nuevo',
-    };
+    return { tipo: 'rechazado', mensaje: await crearMensajeSensorOcupado() };
   }
   return { tipo: 'cambiado', lote: loteActualizado };
+}
+
+// Reanuda un lote pausado por una alerta roja: vuelve a Activo y a modo Recoleccion en la
+// misma sentencia. Lo rechaza si no está Pausado o si otro lote usa el sensor
+export async function reanudarLote(loteId: number): Promise<ResultadoReanudarLote> {
+  const lote = await buscarLotePorId(loteId);
+  if (!lote) return { tipo: 'loteInexistente' };
+
+  const motivoRechazo = obtenerMotivoRechazoReanudar(
+    lote.estado,
+    await buscarOtroLoteCapturando(loteId)
+  );
+  if (motivoRechazo) return { tipo: 'rechazado', mensaje: motivoRechazo };
+
+  const resultado = await reanudarLotePausado(loteId);
+  if (resultado.tipo === 'noPausado') {
+    // Otra petición lo reanudó entre la revisión y la actualización
+    return { tipo: 'rechazado', mensaje: MENSAJE_LOTE_YA_REANUDADO };
+  }
+  if (resultado.tipo === 'otroLoteCapturando') {
+    // Otro lote empezó a capturar entre la revisión y la actualización
+    return { tipo: 'rechazado', mensaje: await crearMensajeSensorOcupado() };
+  }
+  return { tipo: 'reanudado', lote: resultado.lote };
+}
+
+// Lote distinto del dado que está usando el sensor; null si el sensor está libre
+async function buscarOtroLoteCapturando(loteId: number) {
+  const loteCapturando = await buscarLoteCapturando();
+  if (!loteCapturando || loteCapturando.id === loteId) return null;
+  return { codigo: loteCapturando.codigo, modoCaptura: loteCapturando.modo_captura };
+}
+
+// Mensaje cuando la base rechazó una captura porque otro lote empezó a capturar al mismo tiempo
+async function crearMensajeSensorOcupado() {
+  const loteCapturando = await buscarLoteCapturando();
+  return loteCapturando
+    ? crearMensajeOtroLoteCapturando(loteCapturando.codigo, loteCapturando.modo_captura)
+    : 'Otro lote empezó a capturar al mismo tiempo; intenta de nuevo';
 }
 
 // Saca el lote del modo 'Muestra' dentro de la transacción que registra la muestra.

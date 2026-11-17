@@ -1,6 +1,11 @@
 // Consultas SQL de la tabla lotes
 import pool, { type EjecutorConsultas } from '@/lib/db';
-import { MODO_CAPTURA_DETENIDO, type ModoCaptura } from './reglas';
+import {
+  ESTADO_LOTE_PAUSADO,
+  MODO_CAPTURA_AL_REANUDAR,
+  MODO_CAPTURA_DETENIDO,
+  type ModoCaptura,
+} from './reglas';
 
 // Código de error de PostgreSQL cuando se viola un índice o restricción única
 const CODIGO_ERROR_VALOR_REPETIDO = '23505';
@@ -14,6 +19,10 @@ export interface Lote {
   modo_captura: ModoCaptura;
   fecha_inicio: Date;
 }
+
+// Resultado de reanudar: el lote reanudado, o por qué la base no lo permitió
+export type ResultadoActualizacionReanudar =
+  { tipo: 'reanudado'; lote: Lote } | { tipo: 'noPausado' } | { tipo: 'otroLoteCapturando' };
 
 export interface LoteConMuestra extends Lote {
   tiene_muestra: boolean;
@@ -108,6 +117,26 @@ export async function pausarLoteYDetenerCaptura(loteId: number): Promise<Lote | 
     [MODO_CAPTURA_DETENIDO, loteId]
   );
   return resultado.rows[0] ?? null;
+}
+
+// Reanuda un lote Pausado: lo pasa a Activo y a modo Recoleccion en una sola sentencia.
+// 'noPausado' si el lote no existe o ya no estaba Pausado; 'otroLoteCapturando' si el índice
+// lotes_un_lote_capturando lo impide (otro lote empezó a capturar)
+export async function reanudarLotePausado(loteId: number): Promise<ResultadoActualizacionReanudar> {
+  try {
+    const resultado = await pool.query<Lote>(
+      `UPDATE lotes SET estado = 'Activo', modo_captura = $1
+       WHERE id = $2 AND estado = $3 RETURNING *`,
+      [MODO_CAPTURA_AL_REANUDAR, loteId, ESTADO_LOTE_PAUSADO]
+    );
+    const lote = resultado.rows[0];
+    return lote ? { tipo: 'reanudado', lote } : { tipo: 'noPausado' };
+  } catch (error) {
+    if (esViolacionDeUnicidad(error, INDICE_UN_LOTE_CAPTURANDO)) {
+      return { tipo: 'otroLoteCapturando' };
+    }
+    throw error;
+  }
 }
 
 // Trae todos los lotes, más recientes primero

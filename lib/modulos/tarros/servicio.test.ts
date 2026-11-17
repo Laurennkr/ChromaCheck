@@ -181,6 +181,52 @@ describe('registrarLecturaDelSensor', () => {
     expect(mockPausarLote).toHaveBeenCalledWith(1);
   });
 
+  test('una lectura con ΔE ≥ 15 da alerta Roja por desviación grave y pausa el lote', async () => {
+    // Las anteriores en tolerancia: la Roja viene solo de la magnitud de la nueva
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([3.0, 3.0, 15.54]);
+
+    await registrarLecturaDelSensor(1, '#785FBE', [120, 95, 190]);
+
+    expect(repo.insertarTarro).toHaveBeenCalledWith(
+      expect.objectContaining({ desviacionDeltaE: 15.54, resultado: 'No Aprobado' })
+    );
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Roja',
+      'Desviación grave de 15.54 ΔE (límite 15)',
+      true
+    );
+    expect(mockPausarLote).toHaveBeenCalledWith(1);
+  });
+
+  test('3 lecturas seguidas fuera de tolerancia, aunque bajen, dan Roja por repetición y pausan', async () => {
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([9.0, 12.0, 8.01]);
+
+    await registrarLecturaDelSensor(1, '#7849CF', [120, 73, 207]);
+
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Roja',
+      'Desviación repetida: 3 lecturas seguidas fuera de tolerancia',
+      true
+    );
+    expect(mockPausarLote).toHaveBeenCalledWith(1);
+  });
+
+  test('una lectura con ΔE 14,4 y anteriores en tolerancia da Amarilla y no pausa', async () => {
+    repo.buscarUltimasDesviacionesDeLote.mockResolvedValue([9.0, 3.0, 14.4]);
+
+    await registrarLecturaDelSensor(1, '#7864C8', [120, 100, 200]);
+
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      99,
+      'Amarilla',
+      'Desviación aislada de 14.4 ΔE',
+      false
+    );
+    expect(mockPausarLote).not.toHaveBeenCalled();
+  });
+
   test('responde loteInexistente si el lote no existe', async () => {
     mockObtenerLotePorId.mockResolvedValue(null);
     expect(await registrarLecturaDelSensor(1, '#794FC8', [121, 79, 200])).toEqual({
@@ -245,5 +291,93 @@ describe('consultas', () => {
     expect(await obtenerLecturasRecientesDeLote(1, 8)).toEqual([]);
     expect(repo.buscarLecturasRecientesDeLote).toHaveBeenCalledWith(1, 8);
     expect(await obtenerMuestraDeLote(1)).toBe(MUESTRA);
+  });
+});
+
+// Simula la base de un lote: las lecturas guardadas, las alertas rojas y el estado del lote.
+// buscarUltimasDesviacionesDeLote hace lo mismo que su SQL: solo devuelve las lecturas
+// posteriores al tarro de la última alerta roja del lote
+describe('alertas después de reanudar un lote pausado', () => {
+  // ΔE frente a la muestra (120,80,200), calculados con las fórmulas del código
+  const LECTURA_DELTA_E_16 = { hex: '#785CB9', rgb: [120, 92, 185] as const };
+  const LECTURA_DELTA_E_9 = { hex: '#775AC4', rgb: [119, 90, 196] as const };
+
+  let lecturas: { idTarro: number; desviacionDeltaE: number }[];
+  let tarrosConAlertaRoja: number[];
+  let estadoLote: string;
+
+  beforeEach(() => {
+    lecturas = [];
+    tarrosConAlertaRoja = [];
+    estadoLote = 'Activo';
+
+    mockObtenerLotePorId.mockImplementation(async () => crearLote({ estado: estadoLote }));
+    repo.buscarMuestraDeLote.mockResolvedValue(MUESTRA);
+    repo.insertarTarro.mockImplementation(async (datos) => {
+      const idTarro = 100 + lecturas.length;
+      lecturas.push({ idTarro, desviacionDeltaE: Number(datos.desviacionDeltaE) });
+      return crearTarro({ id_tarro: idTarro, es_muestra: false });
+    });
+    mockCrearAlerta.mockImplementation(async (tarroId, nivel) => {
+      if (nivel === 'Roja') tarrosConAlertaRoja.push(tarroId);
+      return undefined as never;
+    });
+    mockPausarLote.mockImplementation(async () => {
+      estadoLote = 'Pausado';
+      return null;
+    });
+    repo.buscarUltimasDesviacionesDeLote.mockImplementation(async (_loteId, cantidad) => {
+      const ultimaRoja = Math.max(0, ...tarrosConAlertaRoja);
+      return lecturas
+        .filter((lectura) => lectura.idTarro > ultimaRoja)
+        .slice(-cantidad)
+        .map((lectura) => lectura.desviacionDeltaE);
+    });
+  });
+
+  // Envía una lectura del sensor y devuelve el nivel de la alerta que generó (o null)
+  async function leer(lectura: { hex: string; rgb: readonly [number, number, number] }) {
+    mockCrearAlerta.mockClear();
+    const resultado = await registrarLecturaDelSensor(1, lectura.hex, [...lectura.rgb]);
+    expect(resultado).toMatchObject({ tipo: 'registrado' });
+    return mockCrearAlerta.mock.calls[0]?.[1] ?? null;
+  }
+
+  test('16 pausa; tras reanudar, 9 da Amarilla, y la 3.ª lectura de 9 seguida da Roja', async () => {
+    expect(await leer(LECTURA_DELTA_E_16)).toBe('Roja');
+    expect(estadoLote).toBe('Pausado');
+
+    // Reanudar (POST /api/lotes/[id]/reanudar) deja el lote Activo y en Recoleccion
+    estadoLote = 'Activo';
+
+    // Sin el reinicio, la segunda lectura de 9 ya sería Roja: 16 → 9 → 9 son 3 seguidas fuera de tolerancia
+    expect(await leer(LECTURA_DELTA_E_9)).toBe('Amarilla');
+    expect(await leer(LECTURA_DELTA_E_9)).toBe('Amarilla');
+    expect(estadoLote).toBe('Activo');
+
+    expect(await leer(LECTURA_DELTA_E_9)).toBe('Roja');
+    expect(mockCrearAlerta).toHaveBeenCalledWith(
+      expect.any(Number),
+      'Roja',
+      'Desviación repetida: 3 lecturas seguidas fuera de tolerancia',
+      true
+    );
+    expect(estadoLote).toBe('Pausado');
+  });
+
+  test('tras reanudar, una lectura con ΔE ≥ 15 sigue pausando de inmediato', async () => {
+    expect(await leer(LECTURA_DELTA_E_16)).toBe('Roja');
+    estadoLote = 'Activo';
+
+    expect(await leer(LECTURA_DELTA_E_16)).toBe('Roja');
+    expect(estadoLote).toBe('Pausado');
+  });
+
+  test('un lote pausado rechaza la lectura hasta que se reanuda', async () => {
+    estadoLote = 'Pausado';
+    expect(await registrarLecturaDelSensor(1, LECTURA_DELTA_E_9.hex, [119, 90, 196])).toEqual({
+      tipo: 'rechazado',
+      mensaje: 'El lote está pausado por una alerta roja y no acepta lecturas',
+    });
   });
 });

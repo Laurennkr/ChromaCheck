@@ -49,7 +49,7 @@ Los errores internos responden `500` con `"Error interno del servidor"`, igual q
 - `/api/auth/*`: pasa sin revisión, porque es por donde se inicia y se cierra la sesión.
 - El resto de `/api`: pasa con la cookie `sesion` válida o con la clave del dispositivo. Si no, responde `401` con `"Inicie sesión o envíe la clave del dispositivo"`. El acceso de cada ruta está en [api.md](api.md#acceso).
 
-Los endpoints de escritura que usa solo la web verifican además la sesión por su cuenta con `verificarTokenSesion` y responden `401` sin ella, aunque traigan la clave del dispositivo; hoy es el caso de `POST /api/lotes` y `PATCH /api/lotes/[id]/captura`.
+Los endpoints de escritura que usa solo la web verifican además la sesión por su cuenta con `verificarTokenSesion` y responden `401` sin ella, aunque traigan la clave del dispositivo; hoy es el caso de `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar`.
 
 ## Clave del dispositivo
 

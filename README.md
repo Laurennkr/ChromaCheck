@@ -26,6 +26,12 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
      node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
      ```
 
+   - `CLAVE_DISPOSITIVO`: la clave con la que el puente serial entra a la API, de mínimo 32 caracteres. Sin ella la API rechaza al puente con `401`. En local basta una clave propia; solo debe coincidir con la de Vercel si el puente apunta a Vercel (ver [docs/operacion/despliegue.md](docs/operacion/despliegue.md#clave-del-dispositivo)). Para generar una:
+
+     ```bash
+     node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+     ```
+
    El archivo `.env.local` no se sube al repositorio.
 
 3. Iniciar el servidor de desarrollo:
@@ -51,7 +57,7 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
 
 Las pruebas unitarias están junto al código que prueban (`lib/modulos/<modulo>/*.test.ts`) y no necesitan la base de datos ni el servidor:
 
-- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral 8,0 y alertas).
+- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral 8,0 y alertas) y la tabla de decisión de alertas de F5 (roja con ΔE ≥ 15 o con 3 lecturas seguidas fuera de tolerancia).
 - `servicio.test.ts`: la orquestación, con el repositorio simulado (`jest.mock`): modos de captura, pausa por alerta roja y errores.
 - `repositorio.test.ts`: las consultas SQL y sus parámetros, con el pool de PostgreSQL simulado.
 
@@ -92,11 +98,11 @@ En `/lotes/[id]`, un lote `Activo` decide qué hace el único sensor:
 | Sin muestra          | Al entrar al lote se abre sola la pantalla completa "Agregue la muestra patrón de este lote" con el botón **Agregar muestra**; si se cierra, el lote muestra "Este lote todavía no tiene muestra patrón" y el mismo botón. Mientras espera muestra "Coloque la muestra en el sensor", "● Esperando la muestra…" y el botón **Cancelar**. Cuando llega la muestra, la pantalla completa se cierra sola y aparece su color con "✓ Muestra patrón guardada" |
 | Con muestra          | Botón **Iniciar recolección**. Mientras recolecta muestra "Recolección del lote …", "● Recolectando tarros…", "Pase los tarros uno por uno frente al sensor" y el botón **Terminar recolección**                                                                                                                                                                                                                                                         |
 | Otro lote capturando | El botón deshabilitado y al lado "El sensor está ocupado con el lote …", con enlace a ese lote                                                                                                                                                                                                                                                                                                                                                           |
-| Lote `Pausado`       | Sin botones de captura; solo el aviso con el motivo                                                                                                                                                                                                                                                                                                                                                                                                      |
+| Lote `Pausado`       | El aviso con el motivo y el botón **Reanudar recolección**, que vuelve a recolectar y abre la pantalla completa. Si la alerta roja llega durante la recolección, la pantalla completa pasa a rojo ("⚠ Lote pausado", motivo y hora) y a los 5 s muestra **Reanudar recolección** y **Entendido**                                                                                                                                                         |
 
 Mientras el lote espera la muestra o recolecta, la página se refresca cada 3 segundos para mostrar la muestra, las lecturas y las alertas nuevas. Si la API rechaza un cambio, el mensaje aparece en texto con "⚠".
 
-Los lotes se crean desde la pantalla principal; no se renombran. La API se documenta en [docs/contratos/api.md](docs/contratos/api.md). `POST /api/lotes` exige sesión iniciada; las demás rutas de la API quedan abiertas para el puente serial.
+Los lotes se crean desde la pantalla principal; no se renombran. La API se documenta en [docs/contratos/api.md](docs/contratos/api.md). `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` exigen sesión iniciada; las demás rutas de la API quedan abiertas para el puente serial.
 
 ## Estructura
 
@@ -104,7 +110,7 @@ Los lotes se crean desde la pantalla principal; no se renombran. La API se docum
 app/                  Pantallas (page.tsx) y endpoints de la API (api/**/route.ts)
 lib/db.ts             Pool de conexiones a PostgreSQL
 lib/modulos/lotes     Consultas y reglas de los lotes
-lib/modulos/tarros    Registro de tarros, cálculo de deltaE y patrón acumulativo
+lib/modulos/tarros    Registro de tarros, cálculo de deltaE y reglas de alerta (grave, repetida, acumulativa)
 lib/modulos/alertas   Registro y consulta de alertas
 public/               Logo e imágenes
 ```
