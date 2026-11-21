@@ -64,3 +64,9 @@ Lab "Cimientos" adaptado a Neon (sin Supabase), con la skill `backend-seguro`: l
 ### Revisión del equipo
 
 Pendiente: Lauren revisa el SQL de `0001` y `0002`, los resultados de las pruebas en `desarrollo` y decide cuándo aplicar `0002` en la rama principal.
+
+## 2026-11-20 · Umbral teórico y umbral del prototipo
+
+| Propuesta                                                     | Decisión                                                                                                                                                                                                                                    |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Alinear `reglas.ts` con el umbral 0,8 (tarea 9.13, brecha B7) | Lauren decidió no cambiar el código: el 0,8 queda como regla teórica en los documentos y el prototipo conserva los valores calibrados. Se ajustaron B7, la tarea 9.13, F4, F5, `producto.md` y el comentario de `scripts/sembrar-datos.mjs` |
