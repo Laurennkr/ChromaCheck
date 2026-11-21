@@ -10,7 +10,9 @@
     "formato": "prettier --write .",
     "formato:revisar": "prettier --check .",
     "test": "jest",
-    "test:cobertura": "jest --coverage"
+    "test:cobertura": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ver": "playwright test --ui"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -19,6 +21,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",

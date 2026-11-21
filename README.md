@@ -52,6 +52,8 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
 | `npm run formato:revisar` | Revisa el formato sin cambiar archivos (lo exige la Definition of Done) |
 | `npm test`                | Ejecuta las pruebas unitarias con Jest                                  |
 | `npm run test:cobertura`  | Ejecuta las pruebas y mide la cobertura de `lib/modulos`                |
+| `npm run test:e2e`        | Pruebas end to end con Playwright contra la rama `e2e` de Neon          |
+| `npm run test:e2e:ver`    | Las mismas pruebas en la interfaz de Playwright, paso a paso            |
 
 ### Pruebas
 
@@ -68,6 +70,17 @@ npm run test:cobertura        # pruebas y cobertura
 ```
 
 `npm run test:cobertura` muestra la tabla de cobertura en la terminal y genera el reporte en `coverage/index.html` (ábrelo en el navegador para ver línea por línea qué falta probar; la carpeta `coverage/` no se sube al repositorio). Falla si la cobertura de `lib/modulos` baja del 80 % (ACQ-03).
+
+#### Pruebas end to end (E2E)
+
+Las pruebas de `e2e/` abren Chromium y recorren las pantallas como el operario (F1 a F6 y la seguridad de la API), con un puente serial simulado por la API. Corren contra su propia rama de Neon, `e2e`, nunca contra la principal ni Vercel. Necesitan el archivo `.env.e2e.local` (ver [docs/pruebas/e2e.md](docs/pruebas/e2e.md)):
+
+```cmd
+npx playwright install chromium
+npm run test:e2e
+```
+
+En GitHub corren solas en cada PR hacia `development` o `main` (flujo `e2e`, `.github/workflows/e2e.yml`), con los secretos del repositorio `E2E_DATABASE_URL`, `E2E_USUARIO` y `E2E_CONTRASENA`.
 
 ### Crear un usuario
 

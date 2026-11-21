@@ -70,3 +70,30 @@ Pendiente: Lauren revisa el SQL de `0001` y `0002`, los resultados de las prueba
 | Propuesta                                                     | Decisión                                                                                                                                                                                                                                    |
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Alinear `reglas.ts` con el umbral 0,8 (tarea 9.13, brecha B7) | Lauren decidió no cambiar el código: el 0,8 queda como regla teórica en los documentos y el prototipo conserva los valores calibrados. Se ajustaron B7, la tarea 9.13, F4, F5, `producto.md` y el comentario de `scripts/sembrar-datos.mjs` |
+
+## 2026-11-21 · Pruebas end to end con Playwright
+
+Rama `feature/pruebas-e2e`. Detalle en [docs/pruebas/e2e.md](docs/pruebas/e2e.md).
+
+### Prompt usado
+
+Agregar pruebas E2E con Playwright en seis fases: rama `e2e` de Neon y `.env.e2e.local`, configuración con protección contra producción, apoyos (puente simulado, colores calculados con `reglas.ts`, lotes `TEST_E2E_` y sensor libre en `afterEach`), un archivo de escenarios por spec, dos ejecuciones seguidas y documentación. Sin cambiar la lógica de `lib/` ni de `app/`.
+
+### Qué propuso e hizo la IA
+
+- Creó la rama `e2e` de Neon desde `desarrollo` con el MCP y el usuario de pruebas con `scripts/crear-usuario.ts`. La contraseña se generó al azar y se escribió directo en `.env.e2e.local`, sin mostrarla.
+- `playwright.config.ts`: servidor compilado en el puerto 3100 con `DATABASE_URL = E2E_DATABASE_URL`, `workers: 1`, sin reutilizar un servidor ya abierto, y un error antes de correr si la base E2E falta o tiene el mismo host que `.env.local`.
+- Apoyos en `e2e/apoyo/`. Los colores se eligen por búsqueda: se baja el canal rojo de `#E35336` hasta caer en cada franja de ΔE calculada con las constantes de `reglas.ts`, así que las pruebas no tienen umbrales escritos.
+- 10 escenarios en 6 archivos, con los textos reales de los componentes. No hizo falta agregar ningún `aria-label` ni `data-testid`.
+
+### Qué se corrigió durante el trabajo
+
+| Problema                                                                                                                                                                      | Corrección                                                                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| En la primera ejecución fallaron 2 de 10: `getByRole('alert')` encontraba también el anunciador de rutas de Next.js (`#__next-route-announcer__`, vacío y con `role="alert"`) | Las pruebas filtran la alerta por su texto (`filter({ hasText })`). Después, dos ejecuciones seguidas con 10/10 |
+| No hay API para borrar lotes y la regla pide borrar los datos de prueba al terminar                                                                                           | Se documentó restablecer la rama `e2e` desde `desarrollo` (tarea 10.7); no se borra con SQL a mano              |
+| Correr las E2E en GitHub necesita secretos                                                                                                                                    | No se tocó `calidad.yml`; queda la tarea 10.6                                                                   |
+
+### Revisión del equipo
+
+Pendiente: Lauren revisa los escenarios, la protección contra producción y decide si las E2E entran en la integración continua.
