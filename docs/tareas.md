@@ -82,11 +82,13 @@ Rama `feature/docs-backend`. Solo documentación: el código no cambia.
 - [x] 9.3 Sección "Criterios de aceptación del back" en F1 a F7
 - [x] 9.4 Skill `.claude/skills/backend-seguro`, sección "Backend" en `CLAUDE.md`, decisiones y `BITACORA_IA.md`
 - [x] 9.5 Corregir la sección "Seguridad" de `arquitectura.md`, que aún decía que la API estaba abierta
-- [ ] 9.6 Ejecutar las consultas del anexo de `modelo.md` en Neon y quitar las marcas ¹ de los tipos
-- [ ] 9.7 Brecha B1: índice único parcial para una sola muestra por lote (probar primero en Neon)
-- [ ] 9.8 Brechas B2 y B3: UNIQUE en `alertas.tarro_id` y CHECK de `estado`, `resultado` y `nivel`, si las consultas muestran que faltan
-- [ ] 9.9 Brecha B6: carpeta de migraciones con el esquema actual
+- [x] 9.6 Ejecutar las consultas del anexo de `modelo.md` en Neon y quitar las marcas ¹ de los tipos
+- [x] 9.7 Brecha B1: índice único parcial para una sola muestra por lote (probar primero en Neon)
+- [x] 9.8 Brechas B2 y B3: UNIQUE en `alertas.tarro_id` y CHECK de `estado`, `resultado` y `nivel`, si las consultas muestran que faltan
+- [x] 9.9 Brecha B6: carpeta de migraciones con el esquema actual
 - [ ] 9.10 Diferencias D1 a D3 del contrato: mensajes con trato de usted y sin valores internos ni nombres de campos para el operario
 - [ ] 9.11 Decidir D4 (`GET /api/tarros` con lote inexistente) y D5 (`POST /api/tarros` con sesión)
 - [ ] 9.12 Convertir los criterios del back en pruebas automáticas (U5)
-- [ ] 9.13 Alinear la constante de reglas.ts con el umbral 0,8 (y el límite de roja grave con 8), con sus pruebas; brecha B7 de `datos/modelo.md`
+- [ ] 9.13 Alinear la constante de reglas.ts con el umbral 0,8 (y el límite de roja grave con 8), con sus pruebas; brecha B7 de `datos/modelo.md`. Al hacerlo, cambiar el color de la lectura amarilla de `scripts/sembrar-datos.mjs`
+- [ ] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`)
+- [ ] 9.15 Brecha B8: traducir a 409 el 23505 de `tarros_una_muestra_por_lote` y `alertas_una_por_tarro`
