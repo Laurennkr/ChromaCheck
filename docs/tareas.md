@@ -102,6 +102,6 @@ Rama `feature/pruebas-e2e`. Solo pruebas: la lógica de `lib/` y `app/` no cambi
 - [x] 10.3 Apoyos en `e2e/apoyo/`: puente simulado, colores elegidos con las constantes de `reglas.ts`, lotes `TEST_E2E_` y sensor libre en `afterEach`
 - [x] 10.4 Escenarios de F1 a F6 y de seguridad (10 pruebas en 6 archivos)
 - [x] 10.5 Dos ejecuciones seguidas completas, sin pruebas intermitentes (21/11/2026: 10/10 en cada una)
-- [ ] 10.6 Correr las E2E en GitHub Actions: guardar `E2E_DATABASE_URL`, `E2E_USUARIO`, `E2E_CONTRASENA`, `AUTH_SECRET` y `CLAVE_DISPOSITIVO` como secretos y agregar el paso en `.github/workflows/calidad.yml`
+- [x] 10.6 Correr las E2E en GitHub Actions en cada PR: flujo propio `.github/workflows/e2e.yml` (no en `calidad.yml`) con los secretos `E2E_DATABASE_URL`, `E2E_USUARIO` y `E2E_CONTRASENA`; `AUTH_SECRET` y `CLAVE_DISPOSITIVO` se generan al azar en cada ejecución (rama `feature/e2e-en-github`)
 - [ ] 10.7 Limpiar los lotes `TEST_E2E_` de vez en cuando restableciendo la rama `e2e` desde `desarrollo` (y volver a crear el usuario de pruebas)
 - [ ] 10.8 Ampliar las E2E con los criterios del back que faltan (tarea 9.12)

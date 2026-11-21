@@ -80,6 +80,8 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
+En GitHub corren solas en cada PR hacia `development` o `main` (flujo `e2e`, `.github/workflows/e2e.yml`), con los secretos del repositorio `E2E_DATABASE_URL`, `E2E_USUARIO` y `E2E_CONTRASENA`.
+
 ### Crear un usuario
 
 No hay registro público: los usuarios se crean desde la terminal con `scripts/crear-usuario.ts` (detalles en [docs/contratos/autenticacion.md](docs/contratos/autenticacion.md)):

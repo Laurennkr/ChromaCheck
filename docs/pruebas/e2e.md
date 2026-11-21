@@ -50,7 +50,7 @@ El archivo está en la raíz y Git lo ignora (`.env*` en `.gitignore`). Nunca se
 | `E2E_USUARIO`      | Usuario de pruebas creado en la rama `e2e`                                        |
 | `E2E_CONTRASENA`   | Su contraseña (aleatoria; solo vive en este archivo)                              |
 
-`AUTH_SECRET` y `CLAVE_DISPOSITIVO` se leen de `.env.local`. Una variable definida en la terminal tiene prioridad sobre las de los archivos.
+`AUTH_SECRET` y `CLAVE_DISPOSITIVO` se leen de `.env.local`. Una variable definida en la terminal tiene prioridad sobre las de los archivos. Si falta alguna de las cinco, la configuración se detiene con un error que dice cuál falta y dónde se agrega, sin mostrar ningún valor (`prepararEntornoE2E` en `e2e/apoyo/entorno.ts`).
 
 Para crear el usuario de pruebas después de restablecer la rama (cmd, reemplazando los valores entre `< >`):
 
@@ -64,8 +64,9 @@ set DATABASE_URL=
 
 `playwright.config.ts` revisa la base antes de correr cualquier cosa y lanza un error, sin levantar el servidor, si:
 
-1. falta `E2E_DATABASE_URL` o no es una cadena de conexión válida, o
-2. su servidor (host) es el mismo que el de `DATABASE_URL` en `.env.local`.
+1. falta `E2E_DATABASE_URL` o no es una cadena de conexión válida;
+2. en el PC, su servidor (host) es el mismo que el de `DATABASE_URL` en `.env.local` o en la terminal;
+3. en GitHub Actions (`CI=true`), `DATABASE_URL` está definida en el flujo: allá no existe la base de desarrollo ni la principal, así que si aparece se trata como un error.
 
 El servidor de las pruebas recibe `DATABASE_URL = E2E_DATABASE_URL` en su entorno; Next.js no reemplaza una variable que ya llega definida, así que el `DATABASE_URL` de `.env.local` no se usa. Tampoco reutiliza un servidor que ya esté corriendo (`reuseExistingServer: false`), porque podría estar conectado a otra base.
 
@@ -97,6 +98,13 @@ La pantalla del lote se refresca cada 3 s mientras captura. Las pruebas no usan 
 | `POST /api/tarros` sin clave ni sesión → 401                                                                                                                              | `e2e/seguridad.spec.ts`                   | R15 y F4 back: sin sesión ni clave no se guarda nada                                                                    |
 | `POST /api/lotes` solo con la clave del dispositivo → 401 "Inicia sesión para crear un lote"                                                                              | `e2e/seguridad.spec.ts`                   | R14 y F2 back: crear un lote exige sesión                                                                               |
 
-## Pendiente
+## En GitHub Actions
 
-- Correr las E2E en GitHub Actions. Necesita guardar `E2E_DATABASE_URL`, `E2E_USUARIO`, `E2E_CONTRASENA`, `AUTH_SECRET` y `CLAVE_DISPOSITIVO` como secretos del repositorio, así que por ahora `.github/workflows/calidad.yml` no cambia (tarea 10.6 de [tareas.md](../tareas.md#10-pruebas-e2e)).
+El flujo `.github/workflows/e2e.yml` (aparte de `calidad.yml`) corre `npm run test:e2e` en cada PR hacia `development` o `main`, y también a mano desde la pestaña Actions ("Run workflow").
+
+- **Secretos del repositorio** (Settings → Secrets and variables → Actions → New repository secret): `E2E_DATABASE_URL`, `E2E_USUARIO` y `E2E_CONTRASENA`, con los mismos valores de `.env.e2e.local`. Si falta uno, el primer paso falla y dice cuál falta y dónde se agrega, sin mostrar valores.
+- **`AUTH_SECRET` y `CLAVE_DISPOSITIVO`** no son secretos guardados: el flujo los genera al azar en cada ejecución (`openssl rand`, 48 bytes) y los enmascara en el registro. No son los de Vercel ni los de ningún PC.
+- **Una ejecución a la vez**: todas comparten el grupo de concurrencia `e2e-neon` sin cancelar la que va corriendo, porque hay una sola rama `e2e` y un solo sensor. Si dos PR se actualizan juntos, el segundo espera su turno.
+- **Si falla**, el artefacto `reporte-e2e` trae `playwright-report/` y `test-results/` durante 7 días. La traza guarda lo que se escribió en los formularios, incluido el usuario y la contraseña de pruebas: solo sirven en la rama `e2e`, pero si la contraseña queda expuesta se cambia creando de nuevo el usuario de pruebas y actualizando el secreto.
+- Tiempo máximo: 30 minutos.
+- Los PR que vienen de un fork no reciben los secretos, así que en ellos el flujo falla en el primer paso.
