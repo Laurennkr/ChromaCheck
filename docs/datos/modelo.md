@@ -193,7 +193,9 @@ Encontradas al pasar el checklist y al comparar los documentos con el código. B
 | B7  | Las constantes de `lib/modulos/tarros/reglas.ts` no siguen el umbral de los documentos: `UMBRAL_TOLERANCIA_DELTA_E = 8.0` (documentos: 0,8) y `UMBRAL_ALERTA_ROJA_DELTA_E = 15.0` (documentos: 8) | Alto   | Abierta. Alinear la constante de `reglas.ts` con el umbral 0,8 (y el límite de roja grave con 8), con sus pruebas; el valor se ajusta al calibrar en el sitio de entrega |
 | B8  | Si dos peticiones registran la muestra o la alerta de un tarro en el mismo instante, el 23505 de `tarros_una_muestra_por_lote` o `alertas_una_por_tarro` no se traduce y la API responde 500      | Bajo   | Abierta. Traducir esos 23505 a 409 en los repositorios. Hoy es casi imposible: `registrarMuestraDeLote` bloquea la fila del lote antes de insertar                       |
 
-La migración 0002 está aplicada en la rama `desarrollo` de Neon; falta aplicarla en la rama principal, con la aprobación de Lauren (ver [despliegue.md](../operacion/despliegue.md#migraciones-de-la-base)).
+La migración 0002 quedó aplicada en la rama `desarrollo` de Neon y en la rama principal (`production`) el **2026-11-20** (hora de Colombia), con la aprobación de Lauren y siguiendo [despliegue.md](../operacion/despliegue.md#migraciones-de-la-base). Antes de aplicarla en la principal se contaron 0 filas que la violaran. Después se confirmaron las 8 restricciones con las consultas del anexo, y `GET /api/lotes` respondió 200.
+
+`prepare_database_migration` corta el SQL en cada `;`, incluso dentro de un bloque `DO $$ … $$`. Por eso en la principal se enviaron las mismas restricciones de 0002 como sentencias sueltas, sin los `IF NOT EXISTS`. Antes se comprobó que ninguna existía y que las claves foráneas ya estaban, y el esquema resultante es idéntico. Para las migraciones futuras conviene evitar los bloques `DO`, o aplicarlas con `run_sql_transaction`.
 
 ## Anexo: consultas para confirmar el esquema
 
