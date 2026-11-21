@@ -92,3 +92,16 @@ Rama `feature/docs-backend`. Solo documentación: el código no cambia.
 - [x] 9.13 Descartada: el código conserva los valores calibrados de `reglas.ts` y el 0,8 queda como regla teórica en los documentos (decisión del 2026-11-20; B7 aceptada en `datos/modelo.md`)
 - [x] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`). Aplicada el 2026-11-20
 - [ ] 9.15 Brecha B8: traducir a 409 el 23505 de `tarros_una_muestra_por_lote` y `alertas_una_por_tarro`
+
+## 10. Pruebas E2E
+
+Rama `feature/pruebas-e2e`. Solo pruebas: la lógica de `lib/` y `app/` no cambia. Ver [pruebas/e2e.md](pruebas/e2e.md).
+
+- [x] 10.1 Rama `e2e` de Neon (desde `desarrollo`), `.env.e2e.local` ignorado por Git y usuario de pruebas creado con `scripts/crear-usuario.ts`
+- [x] 10.2 Playwright con Chromium: `playwright.config.ts` (puerto 3100, `workers: 1`, protección contra producción), scripts `test:e2e` y `test:e2e:ver`, `e2e/` fuera de Jest
+- [x] 10.3 Apoyos en `e2e/apoyo/`: puente simulado, colores elegidos con las constantes de `reglas.ts`, lotes `TEST_E2E_` y sensor libre en `afterEach`
+- [x] 10.4 Escenarios de F1 a F6 y de seguridad (10 pruebas en 6 archivos)
+- [x] 10.5 Dos ejecuciones seguidas completas, sin pruebas intermitentes (21/11/2026: 10/10 en cada una)
+- [ ] 10.6 Correr las E2E en GitHub Actions: guardar `E2E_DATABASE_URL`, `E2E_USUARIO`, `E2E_CONTRASENA`, `AUTH_SECRET` y `CLAVE_DISPOSITIVO` como secretos y agregar el paso en `.github/workflows/calidad.yml`
+- [ ] 10.7 Limpiar los lotes `TEST_E2E_` de vez en cuando restableciendo la rama `e2e` desde `desarrollo` (y volver a crear el usuario de pruebas)
+- [ ] 10.8 Ampliar las E2E con los criterios del back que faltan (tarea 9.12)
