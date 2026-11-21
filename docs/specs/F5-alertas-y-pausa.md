@@ -20,7 +20,7 @@ Las reglas se revisan en este orden y gana la primera que se cumple. "Las tres �
 | 4   | Las tres últimas lecturas estrictamente crecientes y la última mayor que 0,8 | No aprobado | Roja     | "Desviación acumulativa detectada: revisar mezclador o posibles fugas" | Pausado e Inactivo |
 | 5   | Cualquier otro caso con ΔE mayor que 0,8 y menor que 8 (desviación aislada)  | No aprobado | Amarilla | "Desviación aislada de <ΔE> ΔE"                                        | Sigue Activo       |
 
-El umbral de aprobación es 0,8 (decisión del 2026-11-20 en [decisiones.md](../decisiones.md)) y se ajusta al calibrar el sensor en el sitio de entrega. Las constantes de `lib/modulos/tarros/reglas.ts` todavía no están alineadas con esta tabla (brecha B7 de [datos/modelo.md](../datos/modelo.md), tarea 9.13).
+El umbral de aprobación es 0,8 (decisión del 2026-11-20 en [decisiones.md](../decisiones.md)) y se ajusta al calibrar el sensor en el sitio de entrega. Esta tabla es la regla teórica. El prototipo aplica en `lib/modulos/tarros/reglas.ts` los valores calibrados con el sensor, y el código no se cambia (decisión del 2026-11-20, diferencia B7 de [datos/modelo.md](../datos/modelo.md)).
 
 Si varias reglas de roja se cumplen a la vez, el mensaje es el de la más grave: grave (2) > repetida (3) > acumulativa (4). Ejemplos con las tres últimas lecturas:
 
@@ -46,9 +46,9 @@ Si varias reglas de roja se cumplen a la vez, el mensaje es el de la más grave:
 
 Ya en `development`:
 
-- [ ] El 100 % de las lecturas con ΔE mayor que 0,8 registran una alerta (amarilla o roja) (pendiente: alinear `reglas.ts`, tarea 9.13).
-- [ ] Una lectura con ΔE de 8 o más da alerta roja y pausa el lote, sin importar las anteriores (pendiente: alinear `reglas.ts`, tarea 9.13).
-- [ ] Tres lecturas seguidas con ΔE mayor que 0,8 dan alerta roja aunque suban, bajen o se repitan (pendiente: alinear `reglas.ts`, tarea 9.13).
+- [ ] El 100 % de las lecturas con ΔE mayor que 0,8 registran una alerta (amarilla o roja) (en la teoría; el prototipo aplica los valores calibrados de `reglas.ts`, decisión del 2026-11-20).
+- [ ] Una lectura con ΔE de 8 o más da alerta roja y pausa el lote, sin importar las anteriores (en la teoría; el prototipo aplica los valores calibrados de `reglas.ts`, decisión del 2026-11-20).
+- [ ] Tres lecturas seguidas con ΔE mayor que 0,8 dan alerta roja aunque suban, bajen o se repitan (en la teoría; el prototipo aplica los valores calibrados de `reglas.ts`, decisión del 2026-11-20).
 - [x] Con varias reglas de roja a la vez, el mensaje es el de la más grave (grave > repetida > acumulativa).
 - [x] La alerta roja pausa el lote y pone su captura en `Inactivo` en la misma sentencia.
 - [x] Un lote pausado rechaza lecturas (409); su única acción es "Reanudar recolección".
@@ -71,7 +71,7 @@ Pendientes (reanudar el lote):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los valores de ΔE siguen la tabla de arriba: aprobado con 0,8 o menos, amarilla aislada entre 0,8 y 8, roja grave con 8 o más. Hasta alinear las constantes de `reglas.ts` (tarea 9.13), los criterios que dependen del umbral fallan con el código actual.
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los valores de ΔE siguen la tabla de arriba: aprobado con 0,8 o menos, amarilla aislada entre 0,8 y 8, roja grave con 8 o más. El prototipo aplica los valores calibrados de `reglas.ts`: en las pruebas automáticas (U5), los criterios que dependen del umbral leen las constantes de ese archivo en lugar de escribir el número fijo.
 
 - [ ] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE entre 0,81 y 7,99 (por ejemplo `#E65A3C`, ΔE 2,71) y las anteriores están en tolerancia, entonces se registra una alerta `Amarilla` "Desviación aislada de <ΔE> ΔE" y el lote sigue `Activo` y en `Recoleccion`.
 - [ ] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE de 8 o más (por ejemplo `#B45336`, ΔE 21,56), entonces se registra una alerta `Roja` "Desviación grave de 21.56 ΔE (límite 8)" y el lote queda `Pausado` e `Inactivo` en la misma sentencia.

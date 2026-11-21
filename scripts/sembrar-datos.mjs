@@ -8,8 +8,8 @@
 // CLAVE_DISPOSITIVO se lee de .env.local. Ningún valor secreto se escribe en este archivo.
 //
 // Los colores se eligieron con los umbrales que tiene hoy lib/modulos/tarros/reglas.ts
-// (tolerancia 8, roja grave desde 15). Cuando se cierre la brecha B7 (umbral 0,8 y roja desde 8),
-// la lectura amarilla de TEST_SEMILLA_002 pasará a ser roja grave y habrá que cambiar su color.
+// (tolerancia 8, roja grave desde 15), que son los valores calibrados del prototipo. El umbral 0,8 de
+// los documentos es la regla teórica y no se aplica en el código (diferencia B7 aceptada).
 //
 // Para borrar los datos al terminar: borrar la rama "desarrollo" de Neon o restablecerla desde la
 // principal (reset_from_parent). No hay API para borrar lotes.

@@ -23,7 +23,7 @@ Ya en `development` (API y cálculo):
 
 - [x] Solo se puede pasar a modo `Recoleccion` si el lote está Activo, tiene muestra y ningún otro lote usa el sensor.
 - [x] El ΔE se calcula con CIE76 frente a la muestra patrón y se muestra con 2 decimales.
-- [ ] Un tarro con ΔE mayor que 0,8 queda "No aprobado"; con 0,8 o menos, "Aprobado" (pendiente: alinear `reglas.ts`, tarea 9.13).
+- [ ] Un tarro con ΔE mayor que 0,8 queda "No aprobado"; con 0,8 o menos, "Aprobado" (en la teoría; el prototipo aplica los valores calibrados de `reglas.ts`, decisión del 2026-11-20).
 - [x] El dictamen se muestra con símbolo y palabra, no solo con color.
 - [x] La tabla del lote muestra las últimas 8 lecturas, de la más reciente a la más antigua.
 - [x] Mientras recolecta, la pantalla se refresca cada 3 segundos.
@@ -42,7 +42,7 @@ Pendientes (flujo "Iniciar recolección"):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 (decisión del 2026-11-20); hasta alinear la constante de `reglas.ts` (tarea 9.13), los criterios que dependen del umbral fallan con el código actual.
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 en la teoría; el prototipo aplica el valor calibrado de `reglas.ts` (decisión del 2026-11-20). En las pruebas automáticas (U5), los criterios que dependen del umbral leen la constante de ese archivo en lugar de escribir el número fijo.
 
 - [ ] Dado un lote `Activo` con muestra y el sensor libre, cuando un usuario con sesión pide el modo `Recoleccion`, entonces responde 200 y el lote queda en `Recoleccion`.
 - [ ] Dado un lote sin muestra, cuando se pide el modo `Recoleccion`, entonces responde 409 "El lote no tiene muestra registrada; captura primero la muestra con el modo Muestra".
