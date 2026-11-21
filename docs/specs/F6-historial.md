@@ -31,7 +31,7 @@ Pendientes (identidad visual):
 
 ## Criterios de aceptación del back
 
-La pantalla no usa la API: lee con `obtenerHistorialTarros` (`lib/modulos/tarros/servicio.ts`) en el servidor. Los criterios se comprueban contra ese servicio y contra la página. En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa.
+La pantalla no usa la API: lee con `obtenerHistorialTarros` (`lib/modulos/tarros/servicio.ts`) en el servidor. Los criterios se comprueban contra ese servicio y contra la página. La casilla se marca cuando el criterio se verificó contra ese servicio y la página (sobre la rama `desarrollo` de Neon o con prueba E2E). Los no marcados quedan pendientes de verificación.
 
 - [ ] Dados dos lotes con su muestra y 7 lecturas en total, cuando se pide la página 1 con 6 por página, entonces el servicio devuelve 6 lecturas (sin las muestras), de la más reciente a la más antigua, y `totalTarros` es 7.
 - [ ] Dadas dos lecturas con el mismo `timestamp`, cuando se listan, entonces va primero la de `id_tarro` mayor.

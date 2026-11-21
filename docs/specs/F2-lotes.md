@@ -37,7 +37,7 @@ Pendientes (identidad visual):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon o prueba E2E). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
 
 - [ ] Dados tres lotes creados en días distintos, cuando se pide `GET /api/lotes`, entonces responde 200 con los tres, del `fecha_inicio` más reciente al más antiguo.
 - [ ] Dado un usuario con sesión y un código nuevo `TEST_#005_Azul`, cuando envía `POST /api/lotes`, entonces responde 201 con el lote en estado `Activo` y modo `Inactivo`.

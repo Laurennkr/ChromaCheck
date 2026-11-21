@@ -41,7 +41,7 @@ Pendientes (flujo "Iniciar recolección"):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 en la teoría; el prototipo aplica el valor calibrado de `reglas.ts` (decisión del 2026-11-20). En las pruebas automáticas (U5), los criterios que dependen del umbral leen la constante de ese archivo en lugar de escribir el número fijo.
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon o prueba E2E). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 en la teoría; el prototipo aplica el valor calibrado de `reglas.ts` (decisión del 2026-11-20). Al verificarlos, los criterios que dependen del umbral se comparan con la constante de ese archivo, no con el número fijo.
 
 - [ ] Dado un lote `Activo` con muestra y el sensor libre, cuando un usuario con sesión pide el modo `Recoleccion`, entonces responde 200 y el lote queda en `Recoleccion`.
 - [ ] Dado un lote sin muestra, cuando se pide el modo `Recoleccion`, entonces responde 409 "El lote no tiene muestra registrada; captura primero la muestra con el modo Muestra".
