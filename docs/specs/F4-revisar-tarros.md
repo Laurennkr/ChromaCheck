@@ -41,21 +41,21 @@ Pendientes (flujo "Iniciar recolección"):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 en la teoría; el prototipo aplica el valor calibrado de `reglas.ts` (decisión del 2026-11-20). En las pruebas automáticas (U5), los criterios que dependen del umbral leen la constante de ese archivo en lugar de escribir el número fijo.
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon, prueba E2E o la verificación registrada en [pruebas/criterios-back.md](../pruebas/criterios-back.md)). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los ejemplos usan una muestra `#E35336` (227, 83, 54); los ΔE salen de `calcularDesviacionDeltaE`. El umbral de aprobación es 0,8 en la teoría; el prototipo aplica el valor calibrado de `reglas.ts` (decisión del 2026-11-20). Al verificarlos, los criterios que dependen del umbral se comparan con la constante de ese archivo, no con el número fijo.
 
-- [ ] Dado un lote `Activo` con muestra y el sensor libre, cuando un usuario con sesión pide el modo `Recoleccion`, entonces responde 200 y el lote queda en `Recoleccion`.
-- [ ] Dado un lote sin muestra, cuando se pide el modo `Recoleccion`, entonces responde 409 "El lote no tiene muestra registrada; captura primero la muestra con el modo Muestra".
-- [ ] Dado un lote en `Recoleccion`, cuando llega la lectura `{ resultadoHex: "#E35337", rgb: [227, 83, 55] }` (ΔE 0,51), entonces responde 201 con `desviacion_delta_e: "0.51"` y `resultado: "Aprobado"`.
-- [ ] Dado un lote en `Recoleccion`, cuando llega la lectura `#E65A3C` / `[230, 90, 60]` (ΔE 2,71), entonces responde 201 con `resultado: "No Aprobado"`.
-- [ ] Dada una lectura con ΔE de exactamente 0,80, cuando se registra, entonces queda "Aprobado" (solo un ΔE mayor que 0,8 es "No Aprobado").
-- [ ] Dada una lectura cuyo `rgb` no es el mismo color que `resultadoHex`, cuando se envía, entonces responde 400 `Los campos "resultadoHex" y "rgb" no representan el mismo color` y no se guarda.
-- [ ] Dada una lectura con `rgb: [256, 0, 0]` o sin `rgb`, cuando se envía, entonces responde 400 y no se guarda.
-- [ ] Dada una petición que incluye `desviacion_delta_e` o `resultado` en el cuerpo, cuando se registra la lectura, entonces el servidor los ignora y guarda los que él calcula.
-- [ ] Dado un lote con muestra y en modo `Inactivo`, cuando llega una lectura, entonces responde 409 "El lote no está en modo Recoleccion (modo actual: Inactivo)…" y no se guarda.
-- [ ] Dado un lote en `Recoleccion`, cuando se pide el modo `Inactivo` ("Terminar recolección"), entonces responde 200 y las lecturas siguientes responden 409.
-- [ ] Dada una lectura para un `loteId` que no existe, cuando se envía, entonces responde 404 "El lote <loteId> no existe".
-- [ ] Dada una petición sin sesión ni clave, cuando se envía `POST /api/tarros`, entonces responde 401 y no se guarda nada.
-- [ ] Dados los tres casos de CP-03, cuando se comparan con un cálculo manual CIE76, entonces la diferencia es de 0,5 ΔE o menos (ACQ-05).
+- [x] Dado un lote `Activo` con muestra y el sensor libre, cuando un usuario con sesión pide el modo `Recoleccion`, entonces responde 200 y el lote queda en `Recoleccion`.
+- [x] Dado un lote sin muestra, cuando se pide el modo `Recoleccion`, entonces responde 409 "El lote no tiene muestra registrada; captura primero la muestra con el modo Muestra".
+- [x] Dado un lote en `Recoleccion`, cuando llega la lectura `{ resultadoHex: "#E35337", rgb: [227, 83, 55] }` (ΔE 0,51), entonces responde 201 con `desviacion_delta_e: "0.51"` y `resultado: "Aprobado"`.
+- [x] Dado un lote en `Recoleccion`, cuando llega la lectura `#E65A3C` / `[230, 90, 60]` (ΔE 2,71), entonces responde 201 con `resultado: "No Aprobado"`.
+- [x] Dada una lectura con ΔE de exactamente 0,80, cuando se registra, entonces queda "Aprobado" (solo un ΔE mayor que 0,8 es "No Aprobado").
+- [x] Dada una lectura cuyo `rgb` no es el mismo color que `resultadoHex`, cuando se envía, entonces responde 400 `Los campos "resultadoHex" y "rgb" no representan el mismo color` y no se guarda.
+- [x] Dada una lectura con `rgb: [256, 0, 0]` o sin `rgb`, cuando se envía, entonces responde 400 y no se guarda.
+- [x] Dada una petición que incluye `desviacion_delta_e` o `resultado` en el cuerpo, cuando se registra la lectura, entonces el servidor los ignora y guarda los que él calcula.
+- [x] Dado un lote con muestra y en modo `Inactivo`, cuando llega una lectura, entonces responde 409 "El lote no está en modo Recoleccion (modo actual: Inactivo)…" y no se guarda.
+- [x] Dado un lote en `Recoleccion`, cuando se pide el modo `Inactivo` ("Terminar recolección"), entonces responde 200 y las lecturas siguientes responden 409.
+- [x] Dada una lectura para un `loteId` que no existe, cuando se envía, entonces responde 404 "El lote <loteId> no existe".
+- [x] Dada una petición sin sesión ni clave, cuando se envía `POST /api/tarros`, entonces responde 401 y no se guarda nada.
+- [x] Dados los tres casos de CP-03, cuando se comparan con un cálculo manual CIE76, entonces la diferencia es de 0,5 ΔE o menos (ACQ-05).
 
 ## Fuera de alcance
 
