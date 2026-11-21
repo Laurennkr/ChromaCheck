@@ -48,19 +48,19 @@ Pendientes (flujo "Agregar muestra"):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon, prueba E2E o la verificación registrada en [pruebas/criterios-back.md](../pruebas/criterios-back.md)). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
 
-- [ ] Dado un lote `Activo`, sin muestra y con el sensor libre, cuando un usuario con sesión pide `PATCH /api/lotes/[id]/captura` con `Muestra`, entonces responde 200 y el lote queda en modo `Muestra`.
-- [ ] Dado un lote en modo `Muestra`, cuando el puente envía `POST /api/tarros` con `{ loteId, resultadoHex: "#E35336", esMuestra: true }`, entonces responde 201 con `resultado: "Muestra"` y `desviacion_delta_e: null`, y el lote vuelve a `Inactivo` en la misma transacción.
-- [ ] Dado un lote que ya tiene muestra, cuando se pide el modo `Muestra`, entonces responde 409 "El lote ya tiene muestra registrada; usa el modo Recoleccion" y el modo no cambia.
-- [ ] Dado que otro lote está capturando, cuando se pide el modo `Muestra` para este lote, entonces responde 409 con el código del otro lote y este lote sigue en `Inactivo`.
-- [ ] Dadas dos peticiones al mismo tiempo que ponen dos lotes distintos en modo `Muestra`, cuando las dos llegan, entonces solo una responde 200 y la otra 409 (lo garantiza `lotes_un_lote_capturando`).
-- [ ] Dado un lote en modo `Inactivo`, cuando el puente envía una muestra, entonces responde 409 "El lote no está en modo Muestra (modo actual: Inactivo)…" y no se guarda el tarro.
-- [ ] Dadas dos muestras del mismo lote enviadas al mismo tiempo, cuando llegan, entonces solo una responde 201 y el lote tiene una sola muestra.
-- [ ] Dado un modo inventado (`"Foto"`), cuando se pide el cambio, entonces responde 400 `El campo "modo" debe ser uno de: Inactivo, Muestra, Recoleccion`.
-- [ ] Dado un lote que no existe (id 999999), cuando se pide el cambio de modo, entonces responde 404 "El lote 999999 no existe".
-- [ ] Dado el puente con su clave y sin sesión, cuando pide `PATCH /api/lotes/[id]/captura`, entonces responde 401 "Inicia sesión para cambiar el modo de captura".
-- [ ] Dado un lote en modo `Muestra`, cuando se envía una muestra con `resultadoHex: "rojo"`, entonces responde 400 `El campo "resultadoHex" debe tener el formato #RRGGBB`.
+- [x] Dado un lote `Activo`, sin muestra y con el sensor libre, cuando un usuario con sesión pide `PATCH /api/lotes/[id]/captura` con `Muestra`, entonces responde 200 y el lote queda en modo `Muestra`.
+- [x] Dado un lote en modo `Muestra`, cuando el puente envía `POST /api/tarros` con `{ loteId, resultadoHex: "#E35336", esMuestra: true }`, entonces responde 201 con `resultado: "Muestra"` y `desviacion_delta_e: null`, y el lote vuelve a `Inactivo` en la misma transacción.
+- [x] Dado un lote que ya tiene muestra, cuando se pide el modo `Muestra`, entonces responde 409 "El lote ya tiene muestra registrada; usa el modo Recoleccion" y el modo no cambia.
+- [x] Dado que otro lote está capturando, cuando se pide el modo `Muestra` para este lote, entonces responde 409 con el código del otro lote y este lote sigue en `Inactivo`.
+- [x] Dadas dos peticiones al mismo tiempo que ponen dos lotes distintos en modo `Muestra`, cuando las dos llegan, entonces solo una responde 200 y la otra 409 (lo garantiza `lotes_un_lote_capturando`).
+- [x] Dado un lote en modo `Inactivo`, cuando el puente envía una muestra, entonces responde 409 "El lote no está en modo Muestra (modo actual: Inactivo)…" y no se guarda el tarro.
+- [x] Dadas dos muestras del mismo lote enviadas al mismo tiempo, cuando llegan, entonces solo una responde 201 y el lote tiene una sola muestra.
+- [x] Dado un modo inventado (`"Foto"`), cuando se pide el cambio, entonces responde 400 `El campo "modo" debe ser uno de: Inactivo, Muestra, Recoleccion`.
+- [x] Dado un lote que no existe (id 999999), cuando se pide el cambio de modo, entonces responde 404 "El lote 999999 no existe".
+- [x] Dado el puente con su clave y sin sesión, cuando pide `PATCH /api/lotes/[id]/captura`, entonces responde 401 "Inicia sesión para cambiar el modo de captura".
+- [x] Dado un lote en modo `Muestra`, cuando se envía una muestra con `resultadoHex: "rojo"`, entonces responde 400 `El campo "resultadoHex" debe tener el formato #RRGGBB`.
 
 ## Fuera de alcance
 

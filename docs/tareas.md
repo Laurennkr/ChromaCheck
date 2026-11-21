@@ -84,7 +84,7 @@ Rama `feature/docs-backend`. Solo documentación: el código no cambia.
 - [x] 9.9 Brecha B6: carpeta de migraciones con el esquema actual
 - [ ] 9.10 Diferencias D1 a D3 del contrato: mensajes con trato de usted y sin valores internos ni nombres de campos para el operario
 - [ ] 9.11 Decidir D4 (`GET /api/tarros` con lote inexistente) y D5 (`POST /api/tarros` con sesión)
-- [ ] 9.12 Convertir los criterios del back en pruebas automáticas (U5)
+- [x] 9.12 Descartada: no se hace la U5; las casillas de los criterios del back se marcan cuando el criterio se verifica contra la API (decisión del 2026-11-21)
 - [x] 9.13 Descartada: el código conserva los valores calibrados de `reglas.ts` y el 0,8 queda como regla teórica en los documentos (decisión del 2026-11-20; B7 aceptada en `datos/modelo.md`)
 - [x] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`). Aplicada el 2026-11-20
 - [ ] 9.15 Brecha B8: traducir a 409 el 23505 de `tarros_una_muestra_por_lote` y `alertas_una_por_tarro`

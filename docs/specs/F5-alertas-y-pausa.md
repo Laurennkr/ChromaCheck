@@ -70,21 +70,21 @@ Pendientes (reanudar el lote):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los valores de ΔE siguen la tabla de arriba: aprobado con 0,8 o menos, amarilla aislada entre 0,8 y 8, roja grave con 8 o más. El prototipo aplica los valores calibrados de `reglas.ts`: en las pruebas automáticas (U5), los criterios que dependen del umbral leen las constantes de ese archivo en lugar de escribir el número fijo.
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon, prueba E2E o la verificación registrada en [pruebas/criterios-back.md](../pruebas/criterios-back.md)). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md). Los valores de ΔE siguen la tabla de arriba: aprobado con 0,8 o menos, amarilla aislada entre 0,8 y 8, roja grave con 8 o más. El prototipo aplica los valores calibrados de `reglas.ts`: al verificarlos, los criterios que dependen del umbral se comparan con las constantes de ese archivo, no con el número fijo.
 
-- [ ] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE entre 0,81 y 7,99 (por ejemplo `#E65A3C`, ΔE 2,71) y las anteriores están en tolerancia, entonces se registra una alerta `Amarilla` "Desviación aislada de <ΔE> ΔE" y el lote sigue `Activo` y en `Recoleccion`.
-- [ ] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE de 8 o más (por ejemplo `#B45336`, ΔE 21,56), entonces se registra una alerta `Roja` "Desviación grave de 21.56 ΔE (límite 8)" y el lote queda `Pausado` e `Inactivo` en la misma sentencia.
-- [ ] Dadas tres lecturas seguidas mayores que 0,8 y menores que 8 (3 → 1 → 2), cuando llega la tercera, entonces su alerta es `Roja` "Desviación repetida: 3 lecturas seguidas fuera de tolerancia" y el lote se pausa.
-- [ ] Dadas tres lecturas estrictamente crecientes con la última mayor que 0,8 (0,3 → 0,5 → 0,9), cuando llega la tercera, entonces su alerta es `Roja` "Desviación acumulativa detectada: revisar mezclador o posibles fugas".
-- [ ] Dadas varias reglas de roja a la vez (1 → 2 → 3), cuando llega la tercera, entonces el mensaje es el de la más grave: repetida antes que acumulativa.
-- [ ] Dadas 5 lecturas con desviación conocida mayor que 0,8 (reanudando el lote cuando una roja lo pausa), cuando se registran, entonces las 5 tienen su fila en `alertas` (ACQ-04: 100 %).
-- [ ] Dado un lote `Pausado`, cuando el puente envía una lectura, entonces responde 409 "El lote está pausado por una alerta roja y no acepta lecturas" y no se guarda.
-- [ ] Dado un lote `Pausado` y el sensor libre, cuando un usuario con sesión envía `POST /api/lotes/[id]/reanudar`, entonces responde 200 con el lote `Activo` y en `Recoleccion`.
-- [ ] Dado un lote reanudado tras una alerta repetida, cuando llega la primera lectura con ΔE entre 0,81 y 7,99, entonces su alerta es `Amarilla` (la cuenta empezó de nuevo); la tercera seguida fuera de tolerancia vuelve a dar `Roja`.
-- [ ] Dado un lote `Activo`, cuando se pide reanudarlo, entonces responde 409 "El lote está Activo; solo se puede reanudar un lote Pausado".
-- [ ] Dado que otro lote está capturando, cuando se pide reanudar un lote `Pausado`, entonces responde 409 con el código del otro lote y el lote sigue `Pausado`.
-- [ ] Dado el puente con su clave y sin sesión, cuando pide reanudar un lote, entonces responde 401 "Inicia sesión para reanudar el lote".
-- [ ] Dado un id que no es un entero positivo (`abc`) o un lote que no existe, cuando se pide reanudar, entonces responde 400 o 404 respectivamente.
+- [x] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE entre 0,81 y 7,99 (por ejemplo `#E65A3C`, ΔE 2,71) y las anteriores están en tolerancia, entonces se registra una alerta `Amarilla` "Desviación aislada de <ΔE> ΔE" y el lote sigue `Activo` y en `Recoleccion`.
+- [x] Dado un lote en `Recoleccion`, cuando llega una lectura con ΔE de 8 o más (por ejemplo `#B45336`, ΔE 21,56), entonces se registra una alerta `Roja` "Desviación grave de 21.56 ΔE (límite 8)" y el lote queda `Pausado` e `Inactivo` en la misma sentencia.
+- [x] Dadas tres lecturas seguidas mayores que 0,8 y menores que 8 (3 → 1 → 2), cuando llega la tercera, entonces su alerta es `Roja` "Desviación repetida: 3 lecturas seguidas fuera de tolerancia" y el lote se pausa.
+- [x] Dadas tres lecturas estrictamente crecientes con la última mayor que 0,8 (0,3 → 0,5 → 0,9), cuando llega la tercera, entonces su alerta es `Roja` "Desviación acumulativa detectada: revisar mezclador o posibles fugas".
+- [x] Dadas varias reglas de roja a la vez (1 → 2 → 3), cuando llega la tercera, entonces el mensaje es el de la más grave: repetida antes que acumulativa.
+- [x] Dadas 5 lecturas con desviación conocida mayor que 0,8 (reanudando el lote cuando una roja lo pausa), cuando se registran, entonces las 5 tienen su fila en `alertas` (ACQ-04: 100 %).
+- [x] Dado un lote `Pausado`, cuando el puente envía una lectura, entonces responde 409 "El lote está pausado por una alerta roja y no acepta lecturas" y no se guarda.
+- [x] Dado un lote `Pausado` y el sensor libre, cuando un usuario con sesión envía `POST /api/lotes/[id]/reanudar`, entonces responde 200 con el lote `Activo` y en `Recoleccion`.
+- [x] Dado un lote reanudado tras una alerta repetida, cuando llega la primera lectura con ΔE entre 0,81 y 7,99, entonces su alerta es `Amarilla` (la cuenta empezó de nuevo); la tercera seguida fuera de tolerancia vuelve a dar `Roja`.
+- [x] Dado un lote `Activo`, cuando se pide reanudarlo, entonces responde 409 "El lote está Activo; solo se puede reanudar un lote Pausado".
+- [x] Dado que otro lote está capturando, cuando se pide reanudar un lote `Pausado`, entonces responde 409 con el código del otro lote y el lote sigue `Pausado`.
+- [x] Dado el puente con su clave y sin sesión, cuando pide reanudar un lote, entonces responde 401 "Inicia sesión para reanudar el lote".
+- [x] Dado un id que no es un entero positivo (`abc`) o un lote que no existe, cuando se pide reanudar, entonces responde 400 o 404 respectivamente.
 
 ## Fuera de alcance
 
