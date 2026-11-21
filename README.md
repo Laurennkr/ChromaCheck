@@ -57,7 +57,7 @@ Plataforma web de control de calidad para una fábrica de pintura. Un prototipo 
 
 Las pruebas unitarias están junto al código que prueban (`lib/modulos/<modulo>/*.test.ts`) y no necesitan la base de datos ni el servidor:
 
-- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral 8,0 y alertas) y la tabla de decisión de alertas de F5 (roja con ΔE ≥ 15 o con 3 lecturas seguidas fuera de tolerancia).
+- `reglas.test.ts`: funciones puras, incluidos los casos documentados CP-01 a CP-05 (deltaE CIE76, umbral de tolerancia y alertas) y la tabla de decisión de alertas de F5 (roja por desviación grave o por 3 lecturas seguidas fuera de tolerancia).
 - `servicio.test.ts`: la orquestación, con el repositorio simulado (`jest.mock`): modos de captura, pausa por alerta roja y errores.
 - `repositorio.test.ts`: las consultas SQL y sus parámetros, con el pool de PostgreSQL simulado.
 
@@ -116,6 +116,8 @@ public/               Logo e imágenes
 ```
 
 ## Base de datos
+
+El modelo completo (diagrama, tipos, restricciones y reglas de negocio por capa) está en [docs/datos/modelo.md](docs/datos/modelo.md).
 
 | Tabla      | Columnas                                                                                                                                                                                                                                                                                                     |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
