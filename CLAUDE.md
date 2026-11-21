@@ -16,6 +16,13 @@
 - Nunca aprobar ni fusionar PR: la aprobación y la fusión las hace Lauren.
 - Nunca hacer push a `main` ni force-push.
 
+## Backend
+
+- Fuente de verdad: `docs/datos/modelo.md` (tablas y reglas) y `docs/contratos/api.md` (operaciones, errores y mensajes). Primero el contrato, después el código: si algo no está ahí, se propone el cambio al documento antes de programarlo.
+- Aplica siempre la skill `.claude/skills/backend-seguro` al tocar datos, rutas de la API o `proxy.ts`.
+- Nunca apliques un cambio de esquema sin mostrar el SQL y esperar la aprobación de Lauren.
+- Nunca escribas claves, contraseñas ni cadenas de conexión en el código: van en variables de entorno.
+
 ## Datos de prueba
 
 - No insertar datos de prueba con SQL manual: crearlos con la API.
