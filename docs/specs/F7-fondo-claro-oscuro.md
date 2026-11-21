@@ -44,7 +44,7 @@ Estado:
 
 ## Criterios de aceptación del back
 
-No aplica a la API ni a la base: el tema se guarda en la cookie `tema` con la Server Function `guardarTema` (`app/acciones/tema.ts`), y `leerTema` (`lib/tema.ts`) lo interpreta. Por decisión, la preferencia no se guarda en la base (ver "Fuera de alcance").
+No aplica a la API ni a la base: el tema se guarda en la cookie `tema` con la Server Function `guardarTema` (`app/acciones/tema.ts`), y `leerTema` (`lib/tema.ts`) lo interpreta. Por decisión, la preferencia no se guarda en la base (ver "Fuera de alcance"). La casilla se marca cuando el criterio se verificó (en el navegador o con prueba E2E). Los no marcados quedan pendientes de verificación.
 
 - [ ] Dado `guardarTema("oscuro")`, cuando se ejecuta, entonces la cookie `tema` vale `oscuro` y vence en 1 año.
 - [ ] Dado un valor desconocido (`guardarTema("rosado")`) o una cookie alterada, cuando se lee el tema, entonces se usa `claro` y no se produce un error.

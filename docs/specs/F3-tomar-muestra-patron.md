@@ -48,7 +48,7 @@ Pendientes (flujo "Agregar muestra"):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon o prueba E2E). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
 
 - [ ] Dado un lote `Activo`, sin muestra y con el sensor libre, cuando un usuario con sesión pide `PATCH /api/lotes/[id]/captura` con `Muestra`, entonces responde 200 y el lote queda en modo `Muestra`.
 - [ ] Dado un lote en modo `Muestra`, cuando el puente envía `POST /api/tarros` con `{ loteId, resultadoHex: "#E35336", esMuestra: true }`, entonces responde 201 con `resultado: "Muestra"` y `desviacion_delta_e: null`, y el lote vuelve a `Inactivo` en la misma transacción.
