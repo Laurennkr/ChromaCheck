@@ -1,0 +1,80 @@
+# Corre las pruebas end to end (Playwright) en cada PR contra la rama "e2e" de Neon.
+# Ver docs/pruebas/e2e.md. Nunca usa la base de desarrollo ni la principal (production)
+name: e2e
+
+on:
+  pull_request:
+    branches: [development, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Hay una sola rama "e2e" de Neon y un solo "sensor" (solo un lote puede capturar a la vez):
+# las ejecuciones de distintos PR esperan su turno en vez de cancelarse
+concurrency:
+  group: e2e-neon
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Revisar secretos del repositorio
+        env:
+          E2E_DATABASE_URL: ${{ secrets.E2E_DATABASE_URL }}
+          E2E_USUARIO: ${{ secrets.E2E_USUARIO }}
+          E2E_CONTRASENA: ${{ secrets.E2E_CONTRASENA }}
+        run: |
+          faltan=0
+          for nombre in E2E_DATABASE_URL E2E_USUARIO E2E_CONTRASENA; do
+            if [ -z "${!nombre}" ]; then
+              echo "::error title=Falta el secreto ${nombre}::Agréguelo en Settings → Secrets and variables → Actions → New repository secret, con el nombre ${nombre} (docs/pruebas/e2e.md)."
+              faltan=1
+            fi
+          done
+          exit "$faltan"
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Chromium (Playwright)
+        run: npx playwright install --with-deps chromium
+
+      # Claves nuevas en cada ejecución: no son las de Vercel ni las de ningún PC
+      - name: Generar AUTH_SECRET y CLAVE_DISPOSITIVO
+        run: |
+          auth_secret="$(openssl rand -base64 48 | tr -d '\n')"
+          clave_dispositivo="$(openssl rand -base64 48 | tr -d '\n')"
+          echo "::add-mask::${auth_secret}"
+          echo "::add-mask::${clave_dispositivo}"
+          {
+            echo "AUTH_SECRET=${auth_secret}"
+            echo "CLAVE_DISPOSITIVO=${clave_dispositivo}"
+          } >> "$GITHUB_ENV"
+
+      - name: Pruebas E2E (Playwright)
+        env:
+          E2E_DATABASE_URL: ${{ secrets.E2E_DATABASE_URL }}
+          E2E_USUARIO: ${{ secrets.E2E_USUARIO }}
+          E2E_CONTRASENA: ${{ secrets.E2E_CONTRASENA }}
+        run: npm run test:e2e
+
+      - name: Subir reporte y evidencias
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-e2e
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
