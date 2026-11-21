@@ -90,5 +90,5 @@ Rama `feature/docs-backend`. Solo documentación: el código no cambia.
 - [ ] 9.11 Decidir D4 (`GET /api/tarros` con lote inexistente) y D5 (`POST /api/tarros` con sesión)
 - [ ] 9.12 Convertir los criterios del back en pruebas automáticas (U5)
 - [ ] 9.13 Alinear la constante de reglas.ts con el umbral 0,8 (y el límite de roja grave con 8), con sus pruebas; brecha B7 de `datos/modelo.md`. Al hacerlo, cambiar el color de la lectura amarilla de `scripts/sembrar-datos.mjs`
-- [ ] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`)
+- [x] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`). Aplicada el 2026-11-20
 - [ ] 9.15 Brecha B8: traducir a 409 el 23505 de `tarros_una_muestra_por_lote` y `alertas_una_por_tarro`
