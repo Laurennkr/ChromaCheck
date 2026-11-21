@@ -37,7 +37,6 @@ Pendientes (flujo "Iniciar recolección"):
 - [x] Antes del primer tarro dice "Esperando el primer tarro…".
 - [x] El dictamen del último tarro se ve a 60 px; el ΔE como "Diferencia de color: 3,42 ΔE".
 - [x] Los cuadros de color miden al menos 160 × 160 px, sin borde, y el código hex va debajo.
-- [ ] El contador dice "Tarros revisados: N. No aprobados: M" y se actualiza con cada lectura.
 - [x] Un tarro nuevo se anuncia a los lectores de pantalla (`aria-live="polite"`).
 
 ## Criterios de aceptación del back
