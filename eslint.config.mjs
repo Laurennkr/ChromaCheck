@@ -23,6 +23,9 @@ const eslintConfig = defineConfig([
     'next-env.d.ts',
     // Reporte de cobertura que genera npm run test:cobertura
     'coverage/**',
+    // Reportes y resultados de Playwright (npm run test:e2e)
+    'playwright-report/**',
+    'test-results/**',
     // Entorno virtual de Python del puente serial (dependencias instaladas, no es código del proyecto)
     'puente-serial/.venv/**',
   ]),
