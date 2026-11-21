@@ -29,6 +29,17 @@ Pendientes (identidad visual):
 - [x] Botones "Página anterior" y "Página siguiente" de 56 px con texto, y "Página 2 de 5" visible.
 - [x] El cuadro del color medido mide al menos 32 px y tiene borde.
 
+## Criterios de aceptación del back
+
+La pantalla no usa la API: lee con `obtenerHistorialTarros` (`lib/modulos/tarros/servicio.ts`) en el servidor. Los criterios se comprueban contra ese servicio y contra la página. En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa.
+
+- [ ] Dados dos lotes con su muestra y 7 lecturas en total, cuando se pide la página 1 con 6 por página, entonces el servicio devuelve 6 lecturas (sin las muestras), de la más reciente a la más antigua, y `totalTarros` es 7.
+- [ ] Dadas dos lecturas con el mismo `timestamp`, cuando se listan, entonces va primero la de `id_tarro` mayor.
+- [ ] Dada cada fila del historial, cuando se devuelve, entonces trae `lote_codigo` además del color, el ΔE y el resultado.
+- [ ] Dado `/historial?pagina=abc` o `?pagina=0`, cuando se abre, entonces muestra la página 1 sin error.
+- [ ] Dado `/historial?pagina=99` con solo 2 páginas, cuando se abre, entonces redirige a `/historial?pagina=2`.
+- [ ] Dado un visitante sin sesión, cuando abre `/historial`, entonces lo redirige a `/login` y no se consulta la base.
+
 ## Fuera de alcance
 
 Exportar a Excel o PDF, filtros por fecha o por lote.

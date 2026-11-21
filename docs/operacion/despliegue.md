@@ -36,3 +36,15 @@ openssl rand -base64 32
 Si falta en Vercel, la API rechaza al puente con `401`; si falta en el equipo del taller, el puente no arranca.
 
 No se usa Render: la interfaz y la API son una sola app, y el puente serial no va en la nube. Corre en la PC del taller, junto al Arduino, conectado por USB, y envía las lecturas a la API por HTTP.
+
+## Migraciones de la base
+
+Los cambios de esquema están en [`db/migraciones/`](../../db/migraciones/README.md). Vercel no aplica migraciones: se aplican a mano, con el MCP de Neon o el SQL Editor, siempre en este orden y nunca sin la aprobación de Lauren.
+
+1. **Rama `desarrollo` de Neon.** Se cuentan las filas que la migración violaría, se aplica ahí (`run_sql_transaction`) y se prueban los intentos que deben fallar. Si la rama está muy atrasada, se restablece antes desde la principal (`reset_from_parent`); eso borra los datos `TEST_` de esa rama.
+2. **Aprobación.** El PR muestra el SQL y el resultado de las pruebas. Lauren escribe "aprobado" antes de tocar la principal.
+3. **Preparar en la principal.** `prepare_database_migration` con el SQL de la migración: Neon crea una rama temporal desde la principal y aplica ahí la migración. Se revisa el resultado con las consultas del anexo de [modelo.md](../datos/modelo.md#anexo-consultas-para-confirmar-el-esquema).
+4. **Completar.** Solo si todo coincide, `complete_database_migration` aplica la migración en la rama principal y borra la temporal. Si algo falla, no se completa: la principal queda como estaba.
+5. **Registrar.** Se anota en el PR (o en uno nuevo) la fecha en que se aplicó en la principal y se actualiza el estado en `docs/datos/modelo.md`.
+
+Para el desarrollo local contra la rama `desarrollo`, `.env.development.local` (ignorado por Git) lleva solo su `DATABASE_URL`; `next dev` lo lee antes que `.env.local`, de donde siguen saliendo `AUTH_SECRET` y `CLAVE_DISPOSITIVO`. `npm run build` y Vercel no lo leen.

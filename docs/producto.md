@@ -43,4 +43,4 @@ Según las exclusiones del Acta de Constitución: módulo de contabilidad o fact
 | Diferencia entre el ΔE del sistema y un cálculo manual con CIE76                                                              | ≤ 0,5 ΔE                   | ACQ-05   |
 | Dependencia de la inspección del colorista en el piloto                                                                       | 80 % menos en la semana 16 | Acta     |
 
-La tolerancia vigente es **ΔE > 8,0 → No aprobado** (ver la decisión del 2026-11-10 en [decisiones.md](decisiones.md)).
+La tolerancia vigente es **ΔE > 0,8 → No aprobado** (decisión del 2026-11-20 en [decisiones.md](decisiones.md)); el valor se ajusta al calibrar el sensor en el sitio de entrega. Es la regla teórica: el prototipo aplica en `lib/modulos/tarros/reglas.ts` los valores calibrados con el sensor.

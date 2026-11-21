@@ -35,6 +35,18 @@ Pendientes (identidad visual):
 - [x] Sin lotes, la pantalla dice "Todavía no hay lotes" y muestra el botón "Agregar lote".
 - [x] En la tarjeta, el código, el cuadro de color y "Abrir lote" son lo más visible; la desviación promedio y el estado del sensor van en texto secundario de 16 px.
 
+## Criterios de aceptación del back
+
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+
+- [ ] Dados tres lotes creados en días distintos, cuando se pide `GET /api/lotes`, entonces responde 200 con los tres, del `fecha_inicio` más reciente al más antiguo.
+- [ ] Dado un usuario con sesión y un código nuevo `TEST_#005_Azul`, cuando envía `POST /api/lotes`, entonces responde 201 con el lote en estado `Activo` y modo `Inactivo`.
+- [ ] Dado que existe el lote `TEST_#005_Azul`, cuando se crea `  test_#005_azul  `, entonces responde 409 `Ya existe un lote con el código "test_#005_azul"` y no se crea un segundo lote.
+- [ ] Dado un código vacío o solo con espacios, cuando se envía `POST /api/lotes`, entonces responde 400 `El campo "codigo" es obligatorio` y no se crea el lote (cierra DEF-01 y CP-07).
+- [ ] Dado un código de 51 caracteres, cuando se envía `POST /api/lotes`, entonces responde 400 y no se crea el lote; con 50 caracteres responde 201.
+- [ ] Dado el puente con su clave del dispositivo y sin sesión, cuando envía `POST /api/lotes`, entonces responde 401 "Inicia sesión para crear un lote".
+- [ ] Dado un cuerpo que no es JSON, cuando se envía `POST /api/lotes`, entonces responde 400 "El cuerpo de la petición debe ser un objeto JSON".
+
 ## Fuera de alcance
 
 Renombrar o borrar lotes, filtrar o buscar lotes.

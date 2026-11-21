@@ -47,7 +47,7 @@ Esta separación permite probar las reglas sin base de datos y los servicios con
 
 ## Datos
 
-Tablas: `lotes`, `tarros`, `alertas` y `usuarios` (columnas en el `README.md` de la raíz).
+Tablas: `lotes`, `tarros`, `alertas` y `usuarios`. Columnas, tipos, restricciones, reglas por capa y dueño de cada fila en [datos/modelo.md](datos/modelo.md).
 
 - `lotes` 1 — N `tarros` (uno de ellos es la muestra patrón, `es_muestra = true`)
 - `tarros` 1 — 0..1 `alertas` (cada lectura genera como máximo una alerta)
@@ -59,9 +59,11 @@ Reglas que garantiza la base:
 
 ## Seguridad
 
-- `proxy.ts` exige la cookie `sesion` (firmada con `AUTH_SECRET`) en todas las páginas; las rutas `/api/**` no pasan por él.
-- `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` verifican la sesión por su cuenta.
-- `POST /api/tarros` y `GET /api/captura/activa` quedan abiertas para el puente serial. Pendiente: protegerlas con una clave compartida del puente (tarea 5.2 de [tareas.md](tareas.md)).
+- `proxy.ts` exige la cookie `sesion` (firmada con `AUTH_SECRET`) en todas las páginas; sin ella redirige a `/login`.
+- Toda la API fuera de `/api/auth/*` pasa por `proxy.ts`: entra con la cookie `sesion` o con la clave del dispositivo (`x-clave-dispositivo`, variable `CLAVE_DISPOSITIVO`, comparada en tiempo constante y con falla cerrada). Sin ninguna, responde 401.
+- `POST /api/lotes`, `PATCH /api/lotes/[id]/captura` y `POST /api/lotes/[id]/reanudar` verifican además la sesión por su cuenta: la clave del dispositivo no basta para ellas.
+- Solo el servidor se conecta a la base (`DATABASE_URL`); por eso no se usa RLS (ver [decisiones.md](decisiones.md)). Las consultas son parametrizadas y los errores 500 no muestran detalles internos.
+- Las reglas de seguridad del backend están en la skill `.claude/skills/backend-seguro`.
 
 ## Pruebas
 
