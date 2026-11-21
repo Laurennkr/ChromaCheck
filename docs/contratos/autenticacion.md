@@ -2,16 +2,18 @@
 
 ## Tabla `usuarios`
 
-Probar primero en el SQL Editor de Neon:
+La crea [`db/migraciones/0001_esquema_inicial.sql`](../../db/migraciones/0001_esquema_inicial.sql), con los tipos confirmados en Neon el 2026-11-20:
 
 ```sql
 CREATE TABLE usuarios (
   id SERIAL PRIMARY KEY,
   nombre_usuario VARCHAR(50) NOT NULL UNIQUE,
-  contrasena_hash TEXT NOT NULL,
+  contrasena_hash VARCHAR(255) NOT NULL,
   fecha_creacion TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
+
+El hash `sal:hash` de scrypt ocupa 161 caracteres (32 de la sal, los dos puntos y 128 del hash), así que cabe en `VARCHAR(255)`.
 
 La contraseña nunca se guarda en texto plano: se guarda el hash `sal:hash` generado con scrypt (`lib/modulos/auth/contrasenas.ts`).
 

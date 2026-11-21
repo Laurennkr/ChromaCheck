@@ -6,6 +6,3 @@ puente-serial/
 .next/
 node_modules/
 package-lock.json
-
-# Documento entregado al curso: se conserva tal como se entregó
-ESTANDARES.md

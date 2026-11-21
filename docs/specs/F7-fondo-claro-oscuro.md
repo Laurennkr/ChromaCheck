@@ -42,6 +42,13 @@ Estado:
 - [ ] Con la herramienta de contraste del navegador, todo el texto da 7:1 o más en los dos temas.
 - [ ] A 390 px de ancho, el control no se corta ni provoca desplazamiento horizontal.
 
+## Criterios de aceptación del back
+
+No aplica a la API ni a la base: el tema se guarda en la cookie `tema` con la Server Function `guardarTema` (`app/acciones/tema.ts`), y `leerTema` (`lib/tema.ts`) lo interpreta. Por decisión, la preferencia no se guarda en la base (ver "Fuera de alcance").
+
+- [ ] Dado `guardarTema("oscuro")`, cuando se ejecuta, entonces la cookie `tema` vale `oscuro` y vence en 1 año.
+- [ ] Dado un valor desconocido (`guardarTema("rosado")`) o una cookie alterada, cuando se lee el tema, entonces se usa `claro` y no se produce un error.
+
 ## Fuera de alcance
 
 Seguir el tema del sistema operativo (`prefers-color-scheme`), más de dos temas, guardar la preferencia en la base de datos.

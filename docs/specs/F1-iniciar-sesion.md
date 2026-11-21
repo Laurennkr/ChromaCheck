@@ -30,6 +30,20 @@ Pendientes (identidad visual):
 - [x] Botón "Ingresar" principal de 72 px de alto y ancho completo del formulario.
 - [x] El error aparece debajo del botón, en texto de 18 px con "⚠", y no se borra solo.
 
+## Criterios de aceptación del back
+
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). En la U5 cada criterio se convierte en una prueba automática; la casilla se marca cuando esa prueba pasa. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+
+- [ ] Dado un usuario creado con `scripts/crear-usuario.ts`, cuando envía `POST /api/auth/login` con su usuario y contraseña, entonces responde 200 con `{ id, nombreUsuario }` y deja la cookie `sesion` HttpOnly por 8 horas.
+- [ ] Dado un usuario con la contraseña equivocada, cuando inicia sesión, entonces responde 401 "Usuario o contraseña incorrectos" y no deja cookie.
+- [ ] Dado un nombre de usuario que no existe, cuando inicia sesión, entonces responde el mismo 401 y el mismo mensaje que con la contraseña equivocada, sin revelar cuál campo falló.
+- [ ] Dado un cuerpo sin `nombreUsuario` o sin `contrasena`, cuando se envía el login, entonces responde 400 "Ingresa usuario y contraseña".
+- [ ] Dada una petición sin cookie y sin clave del dispositivo, cuando llama a `GET /api/lotes`, entonces responde 401 "Inicie sesión o envíe la clave del dispositivo".
+- [ ] Dada una cookie `sesion` con la firma alterada o vencida, cuando llama a cualquier ruta fuera de `/api/auth/*`, entonces responde 401 igual que sin cookie.
+- [ ] Dado que `CLAVE_DISPOSITIVO` falta o tiene menos de 32 caracteres en el servidor, cuando llega una petición con cualquier `x-clave-dispositivo`, entonces responde 401 (la clave falla cerrada).
+- [ ] Dado un usuario con sesión, cuando envía `POST /api/auth/logout`, entonces responde 200 con `datos: null` y borra la cookie; su siguiente petición a la API responde 401.
+- [ ] Dado un usuario creado, cuando se consulta `usuarios`, entonces `contrasena_hash` tiene la forma `sal:hash` y no contiene la contraseña.
+
 ## Fuera de alcance
 
 Registro público, recuperar contraseña por correo, roles distintos.

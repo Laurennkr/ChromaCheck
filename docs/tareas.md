@@ -72,3 +72,23 @@ Ver [operacion/despliegue.md](operacion/despliegue.md).
 - [ ] 8.2 Conectar Vercel al repo y configurar las variables
 - [ ] 8.3 Exigir el check `calidad` en `development` y `main`
 - [x] 8.4 Clave de dispositivo en `/api/**` antes de fusionar en `main`; incluye la tarea 5.2
+
+## 9. Backend: especificación (U4)
+
+Rama `feature/docs-backend`. Solo documentación: el código no cambia.
+
+- [x] 9.1 `docs/datos/modelo.md`: ER en Mermaid, tabla por entidad, restricciones, reglas de negocio por capa, dueño de cada fila y brechas
+- [x] 9.2 `docs/contratos/api.md`: ejemplos JSON, mensaje exacto de cada error, tabla "acción de pantalla → operación" y diferencias con el código
+- [x] 9.3 Sección "Criterios de aceptación del back" en F1 a F7
+- [x] 9.4 Skill `.claude/skills/backend-seguro`, sección "Backend" en `CLAUDE.md`, decisiones y `BITACORA_IA.md`
+- [x] 9.5 Corregir la sección "Seguridad" de `arquitectura.md`, que aún decía que la API estaba abierta
+- [x] 9.6 Ejecutar las consultas del anexo de `modelo.md` en Neon y quitar las marcas ¹ de los tipos
+- [x] 9.7 Brecha B1: índice único parcial para una sola muestra por lote (probar primero en Neon)
+- [x] 9.8 Brechas B2 y B3: UNIQUE en `alertas.tarro_id` y CHECK de `estado`, `resultado` y `nivel`, si las consultas muestran que faltan
+- [x] 9.9 Brecha B6: carpeta de migraciones con el esquema actual
+- [ ] 9.10 Diferencias D1 a D3 del contrato: mensajes con trato de usted y sin valores internos ni nombres de campos para el operario
+- [ ] 9.11 Decidir D4 (`GET /api/tarros` con lote inexistente) y D5 (`POST /api/tarros` con sesión)
+- [ ] 9.12 Convertir los criterios del back en pruebas automáticas (U5)
+- [x] 9.13 Descartada: el código conserva los valores calibrados de `reglas.ts` y el 0,8 queda como regla teórica en los documentos (decisión del 2026-11-20; B7 aceptada en `datos/modelo.md`)
+- [x] 9.14 Aplicar la migración 0002 en la rama principal de Neon, con la aprobación de Lauren (ver `operacion/despliegue.md`). Aplicada el 2026-11-20
+- [ ] 9.15 Brecha B8: traducir a 409 el 23505 de `tarros_una_muestra_por_lote` y `alertas_una_por_tarro`
