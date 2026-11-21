@@ -57,7 +57,6 @@ Ya en `development`:
 Pendientes (identidad visual):
 
 - [x] Estado rojo de la pantalla completa: franja roja, "⚠ Lote pausado", el motivo y la hora.
-- [ ] Estado dorado de la pantalla completa (alerta amarilla), con "⚠" y palabra.
 - [x] La alerta roja no se cierra sola: espera "Reanudar recolección" o "Entendido".
 - [x] Alertas de la lista con 18 px, nivel escrito ("Alerta roja", "Alerta amarilla") y hora.
 
