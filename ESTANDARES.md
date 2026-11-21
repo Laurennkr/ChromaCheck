@@ -10,11 +10,11 @@ Vigencia: desde su publicación y durante el resto del semestre.
 
 ## Tecnologías del equipo
 
-| Capa | Lenguaje y framework | Formateador y linter |
-|---|---|---|
+| Capa               | Lenguaje y framework                                                                                           | Formateador y linter                 |
+| ------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
 | Frontend y backend | Next.js (React), TypeScript, CSS y Python, en un solo proyecto, carpeta `ChromaCheck` (antes `myBack`/`myapp`) | Prettier y ESLint; PEP 8 para Python |
-| Firmware (Arduino) | C++ sobre Arduino, sensor TCS3200 y PySerial | clang-format (estilo Google) |
-| Base de datos | PostgreSQL 17 alojado en Neon, sin Neon Auth | `snake_case` |
+| Firmware (Arduino) | C++ sobre Arduino, sensor TCS3200 y PySerial                                                                   | clang-format (estilo Google)         |
+| Base de datos      | PostgreSQL 17 alojado en Neon, sin Neon Auth                                                                   | `snake_case`                         |
 
 El frontend y el backend conviven en el mismo proyecto Next.js: las pantallas están en la parte de React y los endpoints de la API en las rutas de servidor del mismo proyecto. No hay un servicio aparte. Python (PySerial) se usa para la comunicación con el Arduino.
 
@@ -64,14 +64,14 @@ Ejemplo: `feat(tarros): agregar endpoints de registro y consulta de tarros`.
 
 ### 2.2 Tipos permitidos
 
-| Tipo | Uso |
-|---|---|
-| `feat` | Funcionalidad nueva |
-| `fix` | Corrección de un defecto |
-| `docs` | Solo documentación |
-| `style` | Formato, sin cambio de lógica |
+| Tipo       | Uso                                           |
+| ---------- | --------------------------------------------- |
+| `feat`     | Funcionalidad nueva                           |
+| `fix`      | Corrección de un defecto                      |
+| `docs`     | Solo documentación                            |
+| `style`    | Formato, sin cambio de lógica                 |
 | `refactor` | Reestructuración sin cambio de comportamiento |
-| `test` | Agregar o corregir pruebas |
+| `test`     | Agregar o corregir pruebas                    |
 
 Cualquier otro tipo es inválido.
 
@@ -103,16 +103,16 @@ Una tarjeta del tablero Kanban puede pasar a "En progreso" solo si cumple todas 
 
 Una tarjeta pasa a "Hecho" solo si se cumplen todas las condiciones. Cada una se comprueba abriendo el repositorio, el Pull Request o el tablero, sin preguntarle nada al autor.
 
-| # | Condición | Cómo la verifica un tercero |
-|---|---|---|
-| 1 | El cambio está fusionado en `development` mediante un Pull Request. | En GitHub, el PR aparece como *Merged* y el historial de `development` contiene el cambio. |
-| 2 | El PR tiene al menos una aprobación del otro integrante. | La pestaña *Conversation* del PR muestra el estado *Approved*. |
-| 3 | Todos los mensajes de commit y el título del PR cumplen la convención de la sección 2. | Se leen en `git log` o en la pestaña *Commits* del PR. |
-| 4 | La tarjeta de Trello tiene enlazado el PR, todos los ítems de sus criterios de aceptación marcados y está en la columna "Hecho". | Se abre la tarjeta y se ve el enlace, la lista completa marcada y la columna. |
-| 5 | Los valores sensibles se leen de variables de entorno guardadas en `.env.local`, ignorado por `.gitignore`. | Se busca en el diff del PR; `.gitignore` incluye `.env.local`. |
-| 6 | El formato pasa sin errores: `npx prettier --check .` y `npm run lint`. | Se ejecutan los comandos en un clon limpio y ambos terminan con código de salida 0. |
-| 7 | El proyecto compila: `npm run build` termina sin errores. | Se ejecuta el comando en un clon limpio y termina con código 0. |
-| 8 | Si el cambio altera una ruta de la API o el esquema de la base de datos, el `README.md` o la carpeta `docs/` se actualizó en el mismo PR. | El PR incluye el diff de `README.md` o `docs/`. |
+| #   | Condición                                                                                                                                 | Cómo la verifica un tercero                                                                |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 1   | El cambio está fusionado en `development` mediante un Pull Request.                                                                       | En GitHub, el PR aparece como _Merged_ y el historial de `development` contiene el cambio. |
+| 2   | El PR tiene al menos una aprobación del otro integrante.                                                                                  | La pestaña _Conversation_ del PR muestra el estado _Approved_.                             |
+| 3   | Todos los mensajes de commit y el título del PR cumplen la convención de la sección 2.                                                    | Se leen en `git log` o en la pestaña _Commits_ del PR.                                     |
+| 4   | La tarjeta de Trello tiene enlazado el PR, todos los ítems de sus criterios de aceptación marcados y está en la columna "Hecho".          | Se abre la tarjeta y se ve el enlace, la lista completa marcada y la columna.              |
+| 5   | Los valores sensibles se leen de variables de entorno guardadas en `.env.local`, ignorado por `.gitignore`.                               | Se busca en el diff del PR; `.gitignore` incluye `.env.local`.                             |
+| 6   | El formato pasa sin errores: `npx prettier --check .` y `npm run lint`.                                                                   | Se ejecutan los comandos en un clon limpio y ambos terminan con código de salida 0.        |
+| 7   | El proyecto compila: `npm run build` termina sin errores.                                                                                 | Se ejecuta el comando en un clon limpio y termina con código 0.                            |
+| 8   | Si el cambio altera una ruta de la API o el esquema de la base de datos, el `README.md` o la carpeta `docs/` se actualizó en el mismo PR. | El PR incluye el diff de `README.md` o `docs/`.                                            |
 
 ---
 
@@ -160,7 +160,7 @@ Se comenta, pero no impide la aprobación:
 
 ## 6. Aceptación
 
-| Nombre completo | Declaración |
-|---|---|
-| Lauren Camila Castro Vera | Conozco y acepto estos estándares. |
+| Nombre completo            | Declaración                        |
+| -------------------------- | ---------------------------------- |
+| Lauren Camila Castro Vera  | Conozco y acepto estos estándares. |
 | Michael David Arias Torres | Conozco y acepto estos estándares. |
