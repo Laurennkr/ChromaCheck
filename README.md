@@ -126,25 +126,16 @@ El modelo completo (diagrama, tipos, restricciones y reglas de negocio por capa)
 | `alertas`  | `id`, `tarro_id` → `tarros.id_tarro`, `nivel` (`Amarilla`, `Roja`), `mensaje`, `congela_registro`, `timestamp`                                                                                                                                                                                               |
 | `usuarios` | `id`, `nombre_usuario` (único), `contrasena_hash`, `fecha_creacion`                                                                                                                                                                                                                                          |
 
-El código único de `lotes` se garantiza con este índice (probado primero en el SQL Editor de Neon):
+El esquema se crea y se cambia con las migraciones de [db/migraciones/](db/migraciones/README.md), en orden numérico. Cada migración se prueba primero en la rama `desarrollo` de Neon y solo se aplica a la principal con aprobación (ver [docs/operacion/despliegue.md](docs/operacion/despliegue.md#migraciones-de-la-base)).
 
-```sql
-CREATE UNIQUE INDEX lotes_codigo_unico ON lotes (LOWER(TRIM(codigo)));
+Para tener datos de prueba en la rama `desarrollo`, con `npm run dev` corriendo:
+
+```bash
+SEMILLA_URL=http://localhost:3000 SEMILLA_USUARIO=<usuario> SEMILLA_CONTRASENA=<contraseña> \
+  node --env-file=.env.local scripts/sembrar-datos.mjs
 ```
 
-El modo de captura (qué lote recibe las lecturas del único sensor) se agregó así, también probado primero en el SQL Editor de Neon:
-
-```sql
-ALTER TABLE lotes
-  ADD COLUMN modo_captura VARCHAR(20) NOT NULL DEFAULT 'Inactivo'
-  CONSTRAINT lotes_modo_captura_valido
-    CHECK (modo_captura IN ('Inactivo', 'Muestra', 'Recoleccion'));
-
--- Solo un lote a la vez puede tener un modo distinto de 'Inactivo'
-CREATE UNIQUE INDEX lotes_un_lote_capturando
-  ON lotes ((true))
-  WHERE modo_captura <> 'Inactivo';
-```
+Crea por la API tres lotes `TEST_SEMILLA_*` con su muestra, lecturas aprobadas, una alerta amarilla y un lote pausado por alerta roja.
 
 ## Integrantes
 
