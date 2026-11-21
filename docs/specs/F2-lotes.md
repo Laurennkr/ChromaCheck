@@ -37,15 +37,15 @@ Pendientes (identidad visual):
 
 ## Criterios de aceptación del back
 
-Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon o prueba E2E). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
+Formato Dado / Cuando / Entonces, contra la API (sin usar el formulario). La casilla se marca cuando el criterio se verificó contra la API (Thunder Client sobre la rama `desarrollo` de Neon, prueba E2E o la verificación registrada en [pruebas/criterios-back.md](../pruebas/criterios-back.md)). Los no marcados quedan pendientes de verificación. Los códigos y mensajes exactos están en [contratos/api.md](../contratos/api.md).
 
-- [ ] Dados tres lotes creados en días distintos, cuando se pide `GET /api/lotes`, entonces responde 200 con los tres, del `fecha_inicio` más reciente al más antiguo.
-- [ ] Dado un usuario con sesión y un código nuevo `TEST_#005_Azul`, cuando envía `POST /api/lotes`, entonces responde 201 con el lote en estado `Activo` y modo `Inactivo`.
-- [ ] Dado que existe el lote `TEST_#005_Azul`, cuando se crea `  test_#005_azul  `, entonces responde 409 `Ya existe un lote con el código "test_#005_azul"` y no se crea un segundo lote.
-- [ ] Dado un código vacío o solo con espacios, cuando se envía `POST /api/lotes`, entonces responde 400 `El campo "codigo" es obligatorio` y no se crea el lote (cierra DEF-01 y CP-07).
-- [ ] Dado un código de 51 caracteres, cuando se envía `POST /api/lotes`, entonces responde 400 y no se crea el lote; con 50 caracteres responde 201.
-- [ ] Dado el puente con su clave del dispositivo y sin sesión, cuando envía `POST /api/lotes`, entonces responde 401 "Inicia sesión para crear un lote".
-- [ ] Dado un cuerpo que no es JSON, cuando se envía `POST /api/lotes`, entonces responde 400 "El cuerpo de la petición debe ser un objeto JSON".
+- [x] Dados tres lotes creados en días distintos, cuando se pide `GET /api/lotes`, entonces responde 200 con los tres, del `fecha_inicio` más reciente al más antiguo.
+- [x] Dado un usuario con sesión y un código nuevo `TEST_#005_Azul`, cuando envía `POST /api/lotes`, entonces responde 201 con el lote en estado `Activo` y modo `Inactivo`.
+- [x] Dado que existe el lote `TEST_#005_Azul`, cuando se crea `  test_#005_azul  `, entonces responde 409 `Ya existe un lote con el código "test_#005_azul"` y no se crea un segundo lote.
+- [x] Dado un código vacío o solo con espacios, cuando se envía `POST /api/lotes`, entonces responde 400 `El campo "codigo" es obligatorio` y no se crea el lote (cierra DEF-01 y CP-07).
+- [x] Dado un código de 51 caracteres, cuando se envía `POST /api/lotes`, entonces responde 400 y no se crea el lote; con 50 caracteres responde 201.
+- [x] Dado el puente con su clave del dispositivo y sin sesión, cuando envía `POST /api/lotes`, entonces responde 401 "Inicia sesión para crear un lote".
+- [x] Dado un cuerpo que no es JSON, cuando se envía `POST /api/lotes`, entonces responde 400 "El cuerpo de la petición debe ser un objeto JSON".
 
 ## Fuera de alcance
 
